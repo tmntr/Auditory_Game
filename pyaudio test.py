@@ -1,20 +1,46 @@
-import pygame
-
-pygame.mixer.init()
-
-# Create Sound and Channel instances.
-sound0 = pygame.mixer.Sound('pianoc.wav')
-channel0 = pygame.mixer.Channel(0)
-
-# Play the sound (that will reset the volume to the default).
-channel0.play(sound0)
-# Now change the volume of the specific speakers.
-# The first argument is the volume of the left speaker and
-# the second argument is the volume of the right speaker.
-channel0.set_volume(0.0, 1.0)
+import pyaudio
+import wave
+import sys
+import time
 
 
-'''pygame.mixer.music.load('pianoc.wav')
-pygame.mixer.music.play(0)'''
+chunk = 1024
 
-#playsound.playsound('pianoc.wav')
+pianofile = "pianoc.wav"
+
+
+
+p = pyaudio.PyAudio()
+
+
+
+
+def play(filename):
+    wf = wave.open(pianofile, 'rb')
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
+    stream.write(wf.readframes(chunk))
+    data = wf.readframes(chunk)
+    while data != '' and len(data) > 0:
+        stream.write(data)
+        data = wf.readframes(chunk)
+
+    stream.stop_stream()
+    stream.close()
+
+
+
+
+for i in range(3):
+    print(time.time())
+    play(pianofile)
+    print(time.time())
+
+
+
+p.terminate()
+
+
+

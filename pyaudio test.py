@@ -2,17 +2,15 @@ import pyaudio
 import wave
 import sys
 import time
-
+import array
+# import numpy
+import math
 
 chunk = 1024
 
 pianofile = "pianoc.wav"
 
-
-
 p = pyaudio.PyAudio()
-
-
 
 
 def play(filename):
@@ -31,16 +29,81 @@ def play(filename):
     stream.close()
 
 
+def playsine(f=440.0, dur=2, v=0.125):
+    sr = 44000
+    frames = int(sr * dur)
+    sinesamples = [((v * (1 - (i / frames))) * math.sin(2 * math.pi * i * f / sr) + (v * (1 - (i / frames))) * math.sin(
+        2 * math.pi * i * 1.498307077 * f / sr)) for i in range(frames)]
+    output_bytes = array.array('f', sinesamples).tobytes()
+    stream = p.open(format=pyaudio.paFloat32,
+                    channels=1,
+                    rate=sr,
+                    output=True)
+    start_time = time.time()
+    stream.write(output_bytes)
+    print("Played sound for {:.2f} seconds".format(time.time() - start_time))
+
+    stream.stop_stream()
+    stream.close()
+
+    p.terminate()
 
 
-for i in range(3):
+def playarray(thearray, samplerate=44000):
+    output_bytes = array.array('f', thearray).tobytes()
+    stream = p.open(format=pyaudio.paFloat32,
+                    channels=1,
+                    rate=samplerate,
+                    output=True)
+    stream.write(output_bytes)
+
+
+def generatetone(f=440.0, dur=2, v=0.125):
+    sr = 44000
+    frames = int(sr * dur)
+    sinesamples = [(v * math.sin(2 * math.pi * i * f/2 / sr)*abs(math.sin(i/64))) for i in range(frames)]
+    return sinesamples
+
+
+def addsamples(a1, a2):
+    minlength = min([len(a1), len(a2)])
+    maxlength = max([len(a1), len(a2)])
+
+    if len(a1) > len(a2):
+        greater = a1
+    else:
+        greter = a2
+
+    newarray = []
+    i = 0
+    while i < minlength:
+        newarray.append(a1[i] + a2[i])
+        i += 1
+    while i < maxlength:
+        newarray.append(greater[i])
+        i += 1
+    return newarray
+
+
+a = generatetone(220)
+csharp = generatetone(554.365262)
+e = generatetone(659.2551138)
+
+chord = addsamples(addsamples(a, e), csharp)
+
+print(chord)
+
+playarray(chord)
+
+# playsine()
+
+'''for i in range(3):
     print(time.time())
     play(pianofile)
-    print(time.time())
-
-
+    print(time.time())'''
 
 p.terminate()
+
 
 
 

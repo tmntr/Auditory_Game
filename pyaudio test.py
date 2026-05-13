@@ -4,6 +4,7 @@ import sys
 import time
 import array
 # import numpy
+import random
 import math
 
 chunk = 1024
@@ -29,7 +30,7 @@ def play(filename):
     stream.close()
 
 
-def playsine(f=440.0, dur=2, v=0.125):
+def playsine(f=440.0, dur=5, v=0.125):
     sr = 44000
     frames = int(sr * dur)
     sinesamples = [((v * (1 - (i / frames))) * math.sin(2 * math.pi * i * f / sr) + (v * (1 - (i / frames))) * math.sin(
@@ -61,9 +62,17 @@ def playarray(thearray, samplerate=44000):
 def generatetone(f=440.0, dur=2, v=0.125):
     sr = 44000
     frames = int(sr * dur)
-    sinesamples = [(v * math.sin(2 * math.pi * i * f/2 / sr)*abs(math.sin(i/64))) for i in range(frames)]
+    sinesamples = [(v * math.sin(2 * math.pi * i * f / sr)*abs(math.sin(i/64))) for i in range(frames)]
     return sinesamples
 
+def generatewhitenoise(dur=2, v=0.125):
+    sr = 44000
+    res = 1000
+    frames = int(sr * dur)
+    samples = []
+    for i in range(frames):
+        samples.append(random.randint(int(-v*res), int(v*res))/res)
+    return samples
 
 def addsamples(a1, a2):
     minlength = min([len(a1), len(a2)])
@@ -72,7 +81,7 @@ def addsamples(a1, a2):
     if len(a1) > len(a2):
         greater = a1
     else:
-        greter = a2
+        greater = a2
 
     newarray = []
     i = 0
@@ -85,7 +94,7 @@ def addsamples(a1, a2):
     return newarray
 
 
-a = generatetone(220)
+'''a = generatetone(220)
 csharp = generatetone(554.365262)
 e = generatetone(659.2551138)
 
@@ -93,7 +102,12 @@ chord = addsamples(addsamples(a, e), csharp)
 
 print(chord)
 
-playarray(chord)
+playarray(chord)'''
+
+static = generatewhitenoise(0.1,0.03125)
+
+for i in range(64):
+    playarray(static)
 
 # playsine()
 

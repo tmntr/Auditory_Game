@@ -3,6 +3,7 @@ import wave
 import sys
 import time
 import array
+import struct
 # import numpy
 import random
 import math
@@ -14,8 +15,18 @@ pianofile = "pianoc.wav"
 p = pyaudio.PyAudio()
 
 
+from wavio import read
+
+print(read(pianofile).data)
+
+thepianoarray = (read(pianofile).data).tolist()
+
+
+
+
 def play(filename):
     wf = wave.open(pianofile, 'rb')
+
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
                     rate=wf.getframerate(),
@@ -28,6 +39,17 @@ def play(filename):
 
     stream.stop_stream()
     stream.close()
+
+def filetoarray(filename):
+    wf = wave.open(filename, 'rb')
+    thearray = []
+    data = wf.readframes(chunk)
+    while data != '' and len(data) > 0:
+        pcm_samples = array.array("h", wf.readframes(chunk))
+        #print(max(pcm_samples))
+        thearray += [item/65536 for item in pcm_samples]
+        data = wf.readframes(chunk)
+    return thearray
 
 
 def playsine(f=440.0, dur=5, v=0.125):
@@ -104,17 +126,22 @@ print(chord)
 
 playarray(chord)'''
 
-static = generatewhitenoise(0.1,0.03125)
+'''static = generatewhitenoise(0.1,0.03125)
 
 for i in range(64):
-    playarray(static)
+    playarray(static)'''
 
 # playsine()
 
-'''for i in range(3):
-    print(time.time())
-    play(pianofile)
-    print(time.time())'''
+
+'''pianoarray = filetoarray(pianofile)
+
+playarray(pianoarray)
+print(time.time())
+
+play(pianofile)'''
+
+playarray(thepianoarray)
 
 p.terminate()
 

@@ -3,9 +3,7 @@ import wave
 import sys
 import time
 import array
-import struct
 # import numpy
-import random
 import math
 
 chunk = 1024
@@ -15,18 +13,8 @@ pianofile = "pianoc.wav"
 p = pyaudio.PyAudio()
 
 
-from wavio import read
-
-print(read(pianofile).data)
-
-thepianoarray = (read(pianofile).data).tolist()
-
-
-
-
 def play(filename):
     wf = wave.open(pianofile, 'rb')
-
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
                     rate=wf.getframerate(),
@@ -46,13 +34,12 @@ def filetoarray(filename):
     data = wf.readframes(chunk)
     while data != '' and len(data) > 0:
         pcm_samples = array.array("h", wf.readframes(chunk))
-        #print(max(pcm_samples))
-        thearray += [item/65536 for item in pcm_samples]
+        # print(max(pcm_samples))
+        thearray += [item / 65536 for item in pcm_samples]
         data = wf.readframes(chunk)
     return thearray
 
-
-def playsine(f=440.0, dur=5, v=0.125):
+def playsine(f=440.0, dur=2, v=0.125):
     sr = 44000
     frames = int(sr * dur)
     sinesamples = [((v * (1 - (i / frames))) * math.sin(2 * math.pi * i * f / sr) + (v * (1 - (i / frames))) * math.sin(
@@ -81,20 +68,12 @@ def playarray(thearray, samplerate=44000):
     stream.write(output_bytes)
 
 
-def generatetone(f=440.0, dur=2, v=0.125):
+def generatetone(f=440.0, dur=10, v=0.125):
     sr = 44000
     frames = int(sr * dur)
-    sinesamples = [(v * math.sin(2 * math.pi * i * f / sr)*abs(math.sin(i/64))) for i in range(frames)]
+    sinesamples = [(v * math.sin(2 * math.pi  * i * (f/8 +0.25*(math.sin(i))) / sr)) for i in range(frames)]
     return sinesamples
 
-def generatewhitenoise(dur=2, v=0.125):
-    sr = 44000
-    res = 1000
-    frames = int(sr * dur)
-    samples = []
-    for i in range(frames):
-        samples.append(random.randint(int(-v*res), int(v*res))/res)
-    return samples
 
 def addsamples(a1, a2):
     minlength = min([len(a1), len(a2)])
@@ -115,33 +94,47 @@ def addsamples(a1, a2):
         i += 1
     return newarray
 
+def ringsamples(a1, a2):
+    minlength = min([len(a1), len(a2)])
+    maxlength = max([len(a1), len(a2)])
 
-'''a = generatetone(220)
+    if len(a1) > len(a2):
+        greater = a1
+    else:
+        greater = a2
+
+    newarray = []
+    i = 0
+    while i < minlength:
+        newarray.append(a1[i] * a2[i])
+        i += 1
+    while i < maxlength:
+        newarray.append(greater[i])
+        i += 1
+    return newarray
+
+
+a = generatetone(220)
 csharp = generatetone(554.365262)
 e = generatetone(659.2551138)
 
+pianoarray = filetoarray(pianofile)
+
+
 chord = addsamples(addsamples(a, e), csharp)
+
+ringmod = ringsamples(a,pianoarray)
 
 print(chord)
 
-playarray(chord)'''
-
-'''static = generatewhitenoise(0.1,0.03125)
-
-for i in range(64):
-    playarray(static)'''
-
+playarray(a)
+#playarray(a)
 # playsine()
 
-
-'''pianoarray = filetoarray(pianofile)
-
-playarray(pianoarray)
-print(time.time())
-
-play(pianofile)'''
-
-playarray(thepianoarray)
+'''for i in range(3):
+    print(time.time())
+    play(pianofile)
+    print(time.time())'''
 
 p.terminate()
 

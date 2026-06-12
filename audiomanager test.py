@@ -7,7 +7,7 @@ p = pyaudio.PyAudio()
 
 
 
-class Manager:
+class MonoManager:
     def __init__(self,samplerate):
         self.samplerate = samplerate
         self.stream = p.open(format=pyaudio.paFloat32,
@@ -52,13 +52,13 @@ class Soundemitter:
         self.index += 1
         self.index %= len(self.sound)
 
-manager = Manager(44100)
+manager = MonoManager(44100)
 
 annoyingpiano = Soundemitter(soundfile="pianoc.wav",manager=manager)
 
 #backgroundnoise = Soundemitter(soundfile="Unfiltered_ambience.wav",manager=manager)
 #print("Ambience done")
-ingenuity = Soundemitter(soundfile="ingenuity.wav",manager=manager)
+'''ingenuity = Soundemitter(soundfile="ingenuity.wav",manager=manager)
 print("Ingenuity done")
 laser = Soundemitter(soundfile="Perseverance_laser.wav",manager=manager)
 print("Laser done")
@@ -67,20 +67,22 @@ print("Dust removal done")
 driving = Soundemitter(soundfile="Perseverance_driving.wav",manager=manager)
 print("Driving done")
 
-annoyingpiano.volume = 0.125
+
 #backgroundnoise.volume = 0.5
 ingenuity.volume = 0.25
 laser.volume = 0.125
 dust_removal.volume = 0.25
-driving.volume = 0.25
+driving.volume = 0.25'''
+
+annoyingpiano.volume = 0.03125/8
 
 while True:
-    #annoyingpiano.update()
+    annoyingpiano.update()
     #backgroundnoise.update()
-    ingenuity.update()
+    '''ingenuity.update()
     laser.update()
     dust_removal.update()
-    driving.update()
+    driving.update()'''
     manager.update()
     #In theory, so long as game processing is very light, it can be done in the same loop as the audio processing.
     #If it is too heavy, it will affect the sound adversely. NO PRINTING STUFF

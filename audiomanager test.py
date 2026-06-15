@@ -20,6 +20,7 @@ class MonoManager:
     def update(self):
         current_frame = self.frames[self.index]
         output_bytes = array.array('f', [current_frame]).tobytes()
+        print(output_bytes)
         self.stream.write(output_bytes)
         self.frames[self.index] = 0
         self.index = (self.index + 1) % self.frameslength

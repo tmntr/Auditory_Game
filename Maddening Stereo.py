@@ -28,6 +28,7 @@ class StereoManager:
         self.stream.write(outputbytes)
         self.framesl[self.index] = 0
         self.framesr[self.index] = 0
+        self.index = (self.index + 1) % self.frameslength
 
 
 
@@ -55,14 +56,22 @@ class StereoSoundemitter:
         self.sound = sound
     def update(self):
         current_frame = self.sound[self.index]
-        self.manager.addsound(current_frame*self.volumel,current_frame*self.volumer)
+        self.manager.addsound(current_frame*self.volumel,current_frame*self.volumer,200,0)
         self.index += 1
         self.index %= len(self.sound)
+
+    def setstereovolume(self,angle):
+        self.volumel = self.volume*math.sin(angle)
+        self.volumer = self.volume*math.cos(angle)
 
 manager = StereoManager(44100)
 
 annoyingpiano = StereoSoundemitter(soundfile="pianoc.wav",manager=manager)
 
+angle = 0
+
 while True:
     annoyingpiano.update()
     manager.update()
+    #annoyingpiano.setstereovolume(angle)
+    angle += 0.00004

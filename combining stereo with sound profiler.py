@@ -20,7 +20,7 @@ left = Ear(-0.175,0)
 right = Ear(0.175,0)
 head = Head(left,right)
 
-piano = Noise(10,2,"pianoc.wav",head.manager)
+piano = Noise(-10,0,"pianoc.wav",head.manager)
 
 while True:
     profilel = head.earl.sound_profile(piano.body)
@@ -28,4 +28,4 @@ while True:
 
     piano.update((profilel,profiler))
     head.update()
-    piano.body.x-=0.0001
+    piano.body.x+=0.0001

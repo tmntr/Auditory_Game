@@ -54,9 +54,13 @@ class StereoSoundemitter:
         for i in range(0, len(sound)):
             sound[i] /= loudest/64
         self.sound = sound
-    def update(self):
+    def update(self,soundprofile = ((0,1),(0,1))):
+        vl = soundprofile[0][1]*self.volume
+        vr = soundprofile[1][1]*self.volume
+        dl = int(soundprofile[0][0]*self.manager.samplerate)
+        dr = int(soundprofile[1][0]*self.manager.samplerate)
         current_frame = self.sound[self.index]
-        self.manager.addsound(current_frame*self.volumel,current_frame*self.volumer,200,0)
+        self.manager.addsound(current_frame*vl,current_frame*vr,dl,dr)
         self.index += 1
         self.index %= len(self.sound)
 
@@ -64,7 +68,7 @@ class StereoSoundemitter:
         self.volumel = self.volume*math.sin(angle)
         self.volumer = self.volume*math.cos(angle)
 
-manager = StereoManager(44100)
+'''manager = StereoManager(44100)
 
 annoyingpiano = StereoSoundemitter(soundfile="pianoc.wav",manager=manager)
 
@@ -73,5 +77,5 @@ angle = 0
 while True:
     annoyingpiano.update()
     manager.update()
-    #annoyingpiano.setstereovolume(angle)
-    angle += 0.00004
+    annoyingpiano.setstereovolume(angle)
+    angle += 0.00004'''

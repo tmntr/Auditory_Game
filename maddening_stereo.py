@@ -17,9 +17,12 @@ class StereoManager:
         self.framesl = numpy.array([0.0 for x in range(0, self.frameslength)])
         self.framesr = numpy.array([0.0 for x in range(0, self.frameslength)])
         self.index = 0
-    def addsound(self,valuel,valuer,offsetl = 0,offsetr = 0):
-        self.framesl[(self.index+offsetl)%self.frameslength] += valuel
-        self.framesr[(self.index + offsetr) % self.frameslength] += valuer
+    def addsound(self,valuel,valuer,offsetl = 0.0,offsetr = 0.0):
+
+        self.framesl[int(self.index+offsetl // 1) % self.frameslength] += valuel#*(offsetl%1)
+        #self.framesl[int(self.index+offsetl // 1 + 1) % self.frameslength] += valuel*(1-offsetl%1)
+        self.framesr[int(self.index + offsetr // 1) % self.frameslength] += valuer# * (offsetr % 1)
+        #self.framesr[int(self.index + offsetr // 1 + 1) % self.frameslength] += valuer * (1 - offsetr % 1)
     def update(self):
         currentl = self.framesl[self.index]
         currentr = self.framesr[self.index]
@@ -57,8 +60,8 @@ class StereoSoundemitter:
     def update(self,soundprofile = ((0,1),(0,1))):
         vl = soundprofile[0][1]*self.volume
         vr = soundprofile[1][1]*self.volume
-        dl = int(soundprofile[0][0]*self.manager.samplerate)
-        dr = int(soundprofile[1][0]*self.manager.samplerate)
+        dl = soundprofile[0][0]*self.manager.samplerate
+        dr = soundprofile[1][0]*self.manager.samplerate
         current_frame = self.sound[self.index]
         self.manager.addsound(current_frame*vl,current_frame*vr,dl,dr)
         self.index += 1

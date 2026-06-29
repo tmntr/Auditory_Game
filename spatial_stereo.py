@@ -14,8 +14,8 @@ class Head:
     def update(self):
         self.manager.update()
     def updatepos(self):
-        self.earl.x,self.earl.y = self.body.x-0.175*math.cos(self.body.angle), self.body.y-0.175*math.sin(self.body.angle)
-        self.earr.x,self.earr.y = self.body.x+0.175*math.cos(self.body.angle), self.body.y+0.175*math.sin(self.body.angle)
+        self.earl.x,self.earl.y = self.body.x+0.175*math.cos(self.body.angle), self.body.y+0.175*math.sin(self.body.angle)
+        self.earr.x,self.earr.y = self.body.x-0.175*math.cos(self.body.angle), self.body.y-0.175*math.sin(self.body.angle)
 
 class Noise:
     def __init__(self,x,y,sound,manager):

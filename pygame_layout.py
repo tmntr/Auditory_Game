@@ -3,7 +3,7 @@ import math
 from spatial_stereo import *
 
 resmultiplier = 0.03125 * 32
-getTicksLastFrame = 0
+
 screenwidth = 1920 / 2 * resmultiplier
 screenheight = 1080 / 2 * resmultiplier
 screen = pygame.display.set_mode((screenwidth, screenheight))
@@ -21,7 +21,7 @@ class Thing:
         self.x = x
         self.y = y
         self.colour = colour
-        self.speed = 0.05
+        self.speed = 0.5
 
     def display(self):
         pygame.draw.circle(screen, self.colour, (self.x * resmultiplier, self.y * resmultiplier), 8 * resmultiplier,
@@ -62,22 +62,22 @@ class Player(Thing):
         super().__init__(x, y, colour)
         self.angle = math.pi
         self.head = Head(self)
-        self.reach = 24
+        self.reach = 0.75
         self.elastframe = False
 
-    def control(self,keys,things):
+    def update(self, keys, things,deltaTime):
         if keys[pygame.K_a]:
-            self.x += self.speed * math.cos(self.angle)
-            self.y -= self.speed * math.sin(self.angle)
+            self.x += self.speed * math.cos(self.angle)*deltaTime/1000
+            self.y -= self.speed * math.sin(self.angle)*deltaTime/1000
         if keys[pygame.K_d]:
-            self.x -= self.speed * math.cos(self.angle)
-            self.y += self.speed * math.sin(self.angle)
+            self.x -= self.speed * math.cos(self.angle)*deltaTime/1000
+            self.y += self.speed * math.sin(self.angle)*deltaTime/1000
         if keys[pygame.K_w]:
-            self.y += self.speed * math.cos(self.angle)
-            self.x += self.speed * math.sin(self.angle)
+            self.y += self.speed * math.cos(self.angle)*deltaTime/1000
+            self.x += self.speed * math.sin(self.angle)*deltaTime/1000
         if keys[pygame.K_s]:
-            self.y -= self.speed * math.cos(self.angle)
-            self.x -= self.speed * math.sin(self.angle)
+            self.y -= self.speed * math.cos(self.angle)*deltaTime/1000
+            self.x -= self.speed * math.sin(self.angle)*deltaTime/1000
 
         if keys[pygame.K_e]:
             if not self.elastframe:
@@ -88,9 +88,12 @@ class Player(Thing):
             self.elastframe = False
 
         if keys[pygame.K_LEFT]:
-            self.angle += 1 / 400
+            self.angle += 1 / 4000 * deltaTime
         if keys[pygame.K_RIGHT]:
-            self.angle -= 1 / 400
+            self.angle -= 1 / 4000 * deltaTime
+
+        self.head.update()
+        self.head.updatepos()
 
     def display(self):
         super().display()

@@ -3,10 +3,12 @@ from spatial_stereo import *
 
 
 
-mc = Player(20, 40, 'cyan')
+mc = Player(20, 35, 'cyan')
 
-things = [InteractObject(20, 30,'pianoc.wav',mc)]
+things = [InteractObject(20, 33,'pianoc.wav',mc),InteractObject(20, 37,'nicewaves.wav',mc)]
 getTicksLastFrame = 0
+
+#,InteractObject(25,35,'Dust_devil.wav',mc)
 
 while True:
     t = pygame.time.get_ticks()
@@ -26,9 +28,9 @@ while True:
 
     mc.update(keys, things,deltaTime)
 
-    #screen.fill("black")
-    #.display()
-    #for item in things:
-        #item.display()
+    screen.fill("black")
+    mc.display()
+    for item in things:
+        item.display()
 
-    #pygame.display.flip()
+    pygame.display.flip()

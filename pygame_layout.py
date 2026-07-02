@@ -2,10 +2,10 @@ import pygame
 import math
 from spatial_stereo import *
 
-resmultiplier = 0.03125 * 32
+resmultiplier = 0.03125 * 64
 
-screenwidth = 1920 / 2 * resmultiplier
-screenheight = 1080 / 2 * resmultiplier
+screenwidth = 1920 / 8 * resmultiplier
+screenheight = 1080 / 8 * resmultiplier
 screen = pygame.display.set_mode((screenwidth, screenheight))
 pygame.init()
 
@@ -24,7 +24,7 @@ class Thing:
         self.speed = 0.5
 
     def display(self):
-        pygame.draw.circle(screen, self.colour, (self.x * resmultiplier, self.y * resmultiplier), 8 * resmultiplier,
+        pygame.draw.circle(screen, self.colour, (self.x * resmultiplier, self.y * resmultiplier), 1 * resmultiplier,
                            0)
 
     def pos(self):

@@ -68,10 +68,10 @@ def playarray(thearray, samplerate=44000):
     stream.write(output_bytes)
 
 
-def generatetone(f=440.0, dur=10, v=0.125):
+def generatetone(f=440.0, dur=2, v=0.125):
     sr = 44000
     frames = int(sr * dur)
-    sinesamples = [(v * math.sin(2 * math.pi  * i * (f/8 +0.25*(math.sin(i))) / sr)) for i in range(frames)]
+    sinesamples = [(v * (math.sin(2 * math.pi * i * (f) / sr))) for i in range(frames)]
     return sinesamples
 
 
@@ -109,12 +109,12 @@ def ringsamples(a1, a2):
         newarray.append(a1[i] * a2[i])
         i += 1
     while i < maxlength:
-        newarray.append(greater[i])
+        newarray.append(0)
         i += 1
     return newarray
 
 
-a = generatetone(220)
+a = generatetone(440)
 csharp = generatetone(554.365262)
 e = generatetone(659.2551138)
 
@@ -123,11 +123,11 @@ pianoarray = filetoarray(pianofile)
 
 chord = addsamples(addsamples(a, e), csharp)
 
-ringmod = ringsamples(a,pianoarray)
+ringmod = ringsamples(e,pianoarray)
 
-print(chord)
+playarray(ringmod)
 
-playarray(a)
+#playarray(a)
 #playarray(a)
 # playsine()
 

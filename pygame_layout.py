@@ -2,10 +2,10 @@ import pygame
 import math
 from spatial_stereo import *
 
-resmultiplier = 0.03125 * 64
+resmultiplier = 0.03125 * 256*1.5
 
-screenwidth = 1920 / 8 * resmultiplier
-screenheight = 1080 / 8 * resmultiplier
+screenwidth = 1920 / 32 * resmultiplier
+screenheight = 1080 / 32 * resmultiplier
 screen = pygame.display.set_mode((screenwidth, screenheight))
 pygame.init()
 
@@ -88,15 +88,23 @@ class Player(Thing):
             self.elastframe = False
 
         if keys[pygame.K_LEFT]:
-            self.angle += 1 / 4000 * deltaTime
+            self.angle += 1 / 2000 * deltaTime
         if keys[pygame.K_RIGHT]:
-            self.angle -= 1 / 4000 * deltaTime
+            self.angle -= 1 / 2000 * deltaTime
 
         self.head.update()
         self.head.updatepos()
 
     def display(self):
         super().display()
+        earlpos = self.head.earl.pos
+        earrpos = self.head.earr.pos
+
+        pygame.draw.circle(screen, "red", (earlpos[0] * resmultiplier, earlpos[1] * resmultiplier), 1/4 * resmultiplier,0)
+        pygame.draw.circle(screen, "green", (earrpos[0] * resmultiplier, earrpos[1] * resmultiplier), 1/4 * resmultiplier,
+                           0)
+
+
         pos = (self.x * resmultiplier, self.y * resmultiplier)
         pos2 = ((self.x + math.sin(self.angle) * self.reach) * resmultiplier,
                 (self.y + math.cos(self.angle) * self.reach) * resmultiplier)

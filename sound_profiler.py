@@ -3,6 +3,10 @@ class Thing:
         self.x = x
         self.y = y
 
+    @property
+    def pos(self):
+        return (self.x, self.y)
+
     def dist(self,other):
         return ((self.x-other.x)**2 + (self.y-other.y)**2)**0.5
 

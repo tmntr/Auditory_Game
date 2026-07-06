@@ -68,12 +68,17 @@ def playarray(thearray, samplerate=44000):
     stream.write(output_bytes)
 
 
-def generatetone(f=440.0, dur=2, v=0.125):
+def generatetone(f=440.0, dur=20, v=0.125):
     sr = 44000
     frames = int(sr * dur)
     sinesamples = [(v * (math.sin(2 * math.pi * i * (f) / sr))) for i in range(frames)]
     return sinesamples
 
+'''def generatesawtooth(f=440.0, dur=20, v=0.125):
+    sr = 44000
+    frames = int(sr * dur)
+    sawsamples = [(v * ((i/f * sr)%(sr/f))) for i in range(frames)]
+    return sawsamples'''
 
 def addsamples(a1, a2):
     minlength = min([len(a1), len(a2)])
@@ -123,7 +128,7 @@ pianoarray = filetoarray(pianofile)
 
 chord = addsamples(addsamples(a, e), csharp)
 
-ringmod = ringsamples(e,pianoarray)
+ringmod = ringsamples(chord,pianoarray)
 
 playarray(ringmod)
 

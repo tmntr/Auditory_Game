@@ -1,3 +1,6 @@
+SOS = 343
+
+
 class Thing:
     def __init__(self,x,y):
         self.x = x
@@ -15,7 +18,7 @@ class Ear(Thing):
         super().__init__(x,y)
 
     def calculate_delay(self,emitter):
-        return self.dist(emitter)/343
+        return self.dist(emitter)/SOS
 
     def sound_factor(self,emitter):
         return min([1,1/self.dist(emitter)**2])

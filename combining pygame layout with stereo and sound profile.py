@@ -22,20 +22,19 @@ while True:
         thing.update()
 
     if pygame.event.get(pygame.QUIT):
-        print(deltaTime)
         break
     keys = pygame.key.get_pressed()
 
     mc.update(keys, things,deltaTime)
 
 
-    if a >= 100:
+    if a >= 1000/40:
         screen.fill("black")
-        mc.display()
         for item in things:
             item.display()
+        mc.display()
 
         pygame.display.flip()
         a = 0
     else:
-        a += 1
+        a += deltaTime

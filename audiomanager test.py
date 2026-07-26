@@ -85,5 +85,6 @@ while True:
     dust_removal.update()
     driving.update()'''
     manager.update()
+
     #In theory, so long as game processing is very light, it can be done in the same loop as the audio processing.
     #If it is too heavy, it will affect the sound adversely. NO PRINTING STUFF

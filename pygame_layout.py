@@ -88,9 +88,9 @@ class Player(Thing):
             self.elastframe = False
 
         if keys[pygame.K_LEFT]:
-            self.angle += 1 / 2000 * deltaTime
+            self.angle += 1 / 500 * deltaTime
         if keys[pygame.K_RIGHT]:
-            self.angle -= 1 / 2000 * deltaTime
+            self.angle -= 1 / 500 * deltaTime
 
         self.head.update()
         self.head.updatepos()

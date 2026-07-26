@@ -21,7 +21,7 @@ class Ear(Thing):
         return self.dist(emitter)/SOS
 
     def sound_factor(self,emitter):
-        return min([1,1/self.dist(emitter)**2])
+        return 1/(self.dist(emitter)+0.2)**2
 
     def sound_profile(self,emitter):
         delay = self.calculate_delay(emitter)

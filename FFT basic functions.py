@@ -18,7 +18,7 @@ signal = 0*t
 
 
 for i in range(15):
-    signal = signal + random.random() * np.sin(2*np.pi*random.randint(1,10000)*t)
+    signal = signal + 0.0001 * random.random() * np.sin(2*np.pi*random.randint(1,10000)*t)
 fft_values = np.fft.fft(signal)
 
 N = len(signal)

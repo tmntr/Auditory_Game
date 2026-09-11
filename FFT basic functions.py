@@ -9,6 +9,7 @@ def alterValueByDecibels(value, decibels):
     return value*10**(decibels/10)
 
 
+
 Fs = 44100
 T = 1/Fs
 
@@ -17,14 +18,14 @@ signal = 0*t
 
 
 
-for i in range(15):
-    signal = signal + 0.0001 * random.random() * np.sin(2*np.pi*random.randint(1,10000)*t)
+for i in range(2):
+    signal = signal + 0.001 * np.sin(2*np.pi*random.randint(1,44100//8)*t)
 fft_values = np.fft.fft(signal)
 
 N = len(signal)
 
 
-
+print("Generated")
 
 
 
@@ -37,16 +38,25 @@ magnitude = np.abs(fft_values)
 
 def boostfreq(sample, lowerbound, upperbound, amount, Fs = 44100):
     T = 1/Fs
-    fftedsignal = np.fft.fft(sample)
     N = len(sample)
+    fftedsignal = np.fft.fft(sample,N,norm='forward')
     newsignal = np.zeros(N)
     freq = np.fft.fftfreq(N, T)
-    for i in range(lowerbound,upperbound):
-        newreal = alterValueByDecibels(fftedsignal[i].real, amount)
-        newimaginary = fftedsignal[i].imag
-        newsignal[i] = newreal + newimaginary * 1.0j
+    for i in range(len(fftedsignal)):
 
-    new_sample = np.real(np.fft.ifft(newsignal))
+        if lowerbound <= freq[i] <= upperbound and not True:
+
+            #newreal = alterValueByDecibels(fftedsignal[i].real, amount)
+            #newimaginary = fftedsignal[i].imag
+            #newsignal[i] = newreal + newimaginary * 1.0j
+            newsignal[i] = alterValueByDecibels(fftedsignal[i], amount)
+        else:
+            newsignal[i] = fftedsignal[i]
+            print(newsignal[i])
+            print(fftedsignal[i])
+
+
+    new_sample = np.real(np.fft.ifft(newsignal,N,norm='forward'))
 
     return new_sample
 
@@ -54,9 +64,9 @@ f1 = 2000
 f2 = 5000
 
 
-new_signal = boostfreq(signal, f1, f2, 17)
+new_signal = boostfreq(signal, f1, f2, 0)
 
-
+print("Boosted")
 
 
 
@@ -102,9 +112,10 @@ stream = p.open(format=pyaudio.paFloat32,
 
 data = signal.astype(np.float32).tobytes()
 stream.write(data)
-time.sleep(1)
-new_data = new_signal.astype(np.float32).tobytes()
+print("Played 1")
+time.sleep(2)
+new_data = (new_signal*10**12).astype(np.float32).tobytes()
 stream.write(new_data)
-
+print("Played 2")
 
 

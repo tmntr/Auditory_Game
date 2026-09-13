@@ -89,7 +89,7 @@ class Renderer(pyglet.window.Window):
         self.clear()
         self.batch.draw()
 
-with wave.open("pianoc.wav", 'rb') as filey:
+with wave.open("Filtered_gaseous_dust_removal.wav", 'rb') as filey:
     print(f'samplewidth: {filey.getsampwidth()} bytes')
     print(f'channels: {filey.getnchannels()}')
     print(f'framerate: {filey.getframerate()} Hz')

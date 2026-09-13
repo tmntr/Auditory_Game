@@ -18,8 +18,8 @@ signal = 0*t
 
 
 
-for i in range(2):
-    signal = signal + 0.001 * np.sin(2*np.pi*random.randint(1,44100//8)*t)
+for i in range(10):
+    signal = signal + 0.00001 * np.sin(2*np.pi*random.randint(1,44100//8)*t)
 fft_values = np.fft.fft(signal)
 
 N = len(signal)
@@ -40,21 +40,20 @@ def boostfreq(sample, lowerbound, upperbound, amount, Fs = 44100):
     T = 1/Fs
     N = len(sample)
     fftedsignal = np.fft.fft(sample,N,norm='forward')
-    newsignal = np.zeros(N)
+    newsignal = np.zeros(N,dtype=np.complex128)
     freq = np.fft.fftfreq(N, T)
     for i in range(len(fftedsignal)):
 
-        if lowerbound <= freq[i] <= upperbound and not True:
+        if lowerbound <= freq[i] <= upperbound:
 
             #newreal = alterValueByDecibels(fftedsignal[i].real, amount)
             #newimaginary = fftedsignal[i].imag
             #newsignal[i] = newreal + newimaginary * 1.0j
-            newsignal[i] = alterValueByDecibels(fftedsignal[i], amount)
+            newsignal[i] += alterValueByDecibels(fftedsignal[i].real, amount)
+            newsignal[i] += alterValueByDecibels(fftedsignal[i].imag, amount)*1.0j
+            print(newsignal[i])
         else:
             newsignal[i] = fftedsignal[i]
-            print(newsignal[i])
-            print(fftedsignal[i])
-
 
     new_sample = np.real(np.fft.ifft(newsignal,N,norm='forward'))
 
@@ -64,7 +63,7 @@ f1 = 2000
 f2 = 5000
 
 
-new_signal = boostfreq(signal, f1, f2, 0)
+new_signal = boostfreq(signal, f1, f2, 17)
 
 print("Boosted")
 
@@ -110,11 +109,12 @@ stream = p.open(format=pyaudio.paFloat32,
                 rate=Fs,
                 output=True,)
 
-data = signal.astype(np.float32).tobytes()
+print("Playing")
+data = (signal).astype(np.float32).tobytes()
 stream.write(data)
 print("Played 1")
 time.sleep(2)
-new_data = (new_signal*10**12).astype(np.float32).tobytes()
+new_data = (new_signal).astype(np.float32).tobytes()
 stream.write(new_data)
 print("Played 2")
 

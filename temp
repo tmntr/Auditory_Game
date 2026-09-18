@@ -28,15 +28,9 @@ soundfile = 'nicewaves.wav'
 
 ogsignal = (read(soundfile).data).tolist()
 signal = np.zeros(len(ogsignal))
-print(ogsignal[0])
 for i in range(len(ogsignal)):
     signal[i] = ogsignal[i][0]
 
-greatestamplitude = max(signal)
-signal = signal/greatestamplitude/10
-
-print(signal[0] for item in signal)
-print(ogsignal[0] for item in ogsignal)
 
 N = len(signal)
 
@@ -134,7 +128,7 @@ f2 = 5000
 print("Playing")
 done = False
 index = 0
-blocksize = 441
+blocksize = 4410
 while not done:
     if index+blocksize > N:
         lastindex = N
@@ -142,12 +136,13 @@ while not done:
         lastindex = index+blocksize
 
     currentblock = signal[index:lastindex]
+    print(currentblock)
 
-    boosted = boostfreq(currentblock,f1,f2,10)
+    boosted = boostfreq(currentblock,f1,f2,17)
 
     miniindex = 0
     while miniindex < len(boosted):
-        stream.write(np.array([boosted[miniindex]]).astype(np.float32).tobytes())
+        stream.write(np.array([boosted[miniindex]]).astype(np.float32).tostring())
         miniindex += 1
     index += blocksize
     if index > N:

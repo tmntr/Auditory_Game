@@ -162,11 +162,14 @@ stream = p.open(format=pyaudio.paFloat32,
 
 f1 = 2000
 f2 = 5000
+fr = 2700
+
+
 
 print("Playing")
 done = False
 index = 0
-blocksize = 4410*2
+blocksize = 4410
 while not done:
     if index+blocksize > N:
         lastindex = N
@@ -175,7 +178,7 @@ while not done:
 
     currentblock = signal[index:lastindex]
 
-    boosted = triangleboostfreq(currentblock,f1,f2,2700,17)
+    boosted = triangleboostfreq(currentblock,f1,f2,fr,17)
 
     miniindex = 0
     while miniindex < len(boosted):

@@ -97,7 +97,7 @@ def triangleboostfreq(sample, lowerbound, upperbound, primaryres, amount, Fs = 4
 
             else:
                 individualamount = amount * (upperbound-frequency)/(upperbound-primaryres)
-            print(f"{frequency} -> {individualamount}")
+            #print(f"{frequency} -> {individualamount}")
             newsignal[i] += alterValueByDecibels(fftedsignal[i],individualamount)
 
         else:

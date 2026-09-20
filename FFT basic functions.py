@@ -33,7 +33,7 @@ for i in range(len(ogsignal)):
     signal[i] = ogsignal[i][0]
 
 greatestamplitude = max(signal)
-signal = signal/greatestamplitude/10
+signal = signal/greatestamplitude/100
 
 print(signal[0] for item in signal)
 print(ogsignal[0] for item in ogsignal)
@@ -66,8 +66,9 @@ def boostfreq(sample, lowerbound, upperbound, amount, Fs = 44100):
             #newreal = alterValueByDecibels(fftedsignal[i].real, amount)
             #newimaginary = fftedsignal[i].imag
             #newsignal[i] = newreal + newimaginary * 1.0j
-            newsignal[i] += alterValueByDecibels(fftedsignal[i].real, amount)
-            newsignal[i] += alterValueByDecibels(fftedsignal[i].imag, amount)*1.0j
+            #newsignal[i] += alterValueByDecibels(fftedsignal[i].real, amount)
+            #newsignal[i] += alterValueByDecibels(fftedsignal[i].imag, amount)*1.0j
+            newsignal[i] += alterValueByDecibels(fftedsignal[i], amount)
 
         else:
             newsignal[i] = fftedsignal[i]
@@ -75,6 +76,37 @@ def boostfreq(sample, lowerbound, upperbound, amount, Fs = 44100):
     new_sample = np.real(np.fft.ifft(newsignal,N,norm='forward'))
 
     return new_sample
+
+def triangleboostfreq(sample, lowerbound, upperbound, primaryres, amount, Fs = 44100):
+    T = 1 / Fs
+    N = len(sample)
+    fftedsignal = np.fft.fft(sample, N, norm='forward')
+    # print(fftedsignal)
+    newsignal = np.zeros(N, dtype=np.complex128)
+    freq = np.fft.fftfreq(N, T)
+    for i in range(len(fftedsignal)):
+
+        if lowerbound <= freq[i] <= upperbound:
+
+            # newreal = alterValueByDecibels(fftedsignal[i].real, amount)
+            # newimaginary = fftedsignal[i].imag
+            # newsignal[i] = newreal + newimaginary * 1.0j
+            frequency = freq[i]
+            if frequency < primaryres:
+                individualamount = amount * (frequency-lowerbound)/(primaryres-lowerbound)
+
+            else:
+                individualamount = amount * (upperbound-frequency)/(upperbound-primaryres)
+            print(f"{frequency} -> {individualamount}")
+            newsignal[i] += alterValueByDecibels(fftedsignal[i],individualamount)
+
+        else:
+            newsignal[i] = fftedsignal[i]
+
+    new_sample = np.real(np.fft.ifft(newsignal, N, norm='forward'))
+
+    return new_sample
+
 
 t = np.arange(0, 1, T)
 
@@ -134,7 +166,7 @@ f2 = 5000
 print("Playing")
 done = False
 index = 0
-blocksize = 441
+blocksize = 4410*2
 while not done:
     if index+blocksize > N:
         lastindex = N
@@ -143,7 +175,7 @@ while not done:
 
     currentblock = signal[index:lastindex]
 
-    boosted = boostfreq(currentblock,f1,f2,10)
+    boosted = triangleboostfreq(currentblock,f1,f2,2700,17)
 
     miniindex = 0
     while miniindex < len(boosted):

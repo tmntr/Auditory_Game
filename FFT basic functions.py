@@ -7,6 +7,10 @@ import random
 import time
 
 
+
+
+
+
 def alterValueByDecibels(value, decibels):
     return value*10**(decibels/10)
 
@@ -108,6 +112,19 @@ def triangleboostfreq(sample, lowerbound, upperbound, primaryres, amount, Fs = 4
     return new_sample
 
 
+def attenuate(sample, amount, sr=44100):
+    N = len(sample)
+    T = 1 / sr
+    frequencies = np.fft.fftfreq(N, T)
+    fftedsignal = np.fft.fft(sample, N, norm='forward')
+    newsignal = np.zeros(N, dtype=np.complex128)
+    for i in range(len(fftedsignal)):
+        frequency = frequencies[i]
+        newsignal[i] = alterValueByDecibels(fftedsignal[i],-abs(amount)*frequency**2)
+    new_sample = np.real(np.fft.ifft(newsignal, N, norm='forward'))
+    return new_sample
+
+
 t = np.arange(0, 1, T)
 
 sinesignal = np.sin(2*np.pi*random.randint(1,44100//8)*t)
@@ -164,12 +181,14 @@ f1 = 2000
 f2 = 5000
 fr = 2700
 
+d = 0
 
+coa = 1.2*10**-8
 
 print("Playing")
 done = False
 index = 0
-blocksize = 4410
+blocksize = 441
 while not done:
     if index+blocksize > N:
         lastindex = N
@@ -178,8 +197,9 @@ while not done:
 
     currentblock = signal[index:lastindex]
 
-    boosted = triangleboostfreq(currentblock,f1,f2,fr,17)
-
+    #boosted = triangleboostfreq(currentblock,f1,f2,fr,17)
+    boosted = attenuate(currentblock, d*coa)
+    
     miniindex = 0
     while miniindex < len(boosted):
         stream.write(np.array([boosted[miniindex]]).astype(np.float32).tobytes())

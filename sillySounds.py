@@ -13,7 +13,7 @@ frequency = 440
 
 
 for i in range(len(signal)):
-    signal[i] = np.sin(2*np.pi*i/sr * (frequency ** -(np.sin(0.5**5*(frequency) * i / sr * 2*np.pi))))
+    signal[i] = np.sin(2*np.pi*i/sr * (frequency ** -(0.5+np.sin(0.5**4*(frequency) * i / sr * 2*np.pi))))
 
 
 

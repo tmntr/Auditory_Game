@@ -181,27 +181,30 @@ f1 = 2000
 f2 = 5000
 fr = 2700
 
-d = 0
+d = 10
 
 coa = 1.2*10**-8
 
 print("Playing")
 done = False
 index = 0
-blocksize = 441
+blocksize = 4410
+blocknumber = 1
 while not done:
-    if index+blocksize > N:
+    if index+blocknumber*blocksize > N:
         lastindex = N
     else:
-        lastindex = index+blocksize
+        lastindex = index+blocknumber*blocksize
 
     currentblock = signal[index:lastindex]
 
-    #boosted = triangleboostfreq(currentblock,f1,f2,fr,17)
-    boosted = attenuate(currentblock, d*coa)
-    
+    boosted = triangleboostfreq(currentblock,f1,f2,fr,17)
+    #oldtime = time.time()
+    #boosted = attenuate(currentblock, d*coa)
+    #newtime = time.time()
+    #print(newtime-oldtime)
     miniindex = 0
-    while miniindex < len(boosted):
+    while miniindex < blocksize:
         stream.write(np.array([boosted[miniindex]]).astype(np.float32).tobytes())
         miniindex += 1
     index += blocksize

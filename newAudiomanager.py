@@ -46,7 +46,14 @@ class AudioManager:
 
 
 class Sounder:
-    def __init__(self,):
+    def __init__(self):
+        self.sound = np.array([])
+        self.tempsound = self.sound
+        self.index = 0
+        self.playing = False
+
+    def sendFrame(self,value):
+        self.sound = np.append(self.sound,value)
 
 
 '''myHeart = AudioManager()

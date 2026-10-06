@@ -9,9 +9,10 @@ import math
 
 #Creating a superclass that will allow basic spatial operations and comparisons to be made
 class Physical:
-    def __init__(self,x,y,d=None):
+    def __init__(self,x,y,w0=0.3,d=None):
         self.x = x
         self.y = y
+        self.w0 = w0
         #will always be positive
         self.direction = d#%2*math.pi
 

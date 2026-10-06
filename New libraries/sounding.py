@@ -1,6 +1,7 @@
 import numpy as np
 import pyaudio
 from wavio import read
+from spacing import Physical
 import math
 import time
 
@@ -93,7 +94,15 @@ class Sounder:
 
 
 class Profiler:
-    def __init__(self):
+    def __init__(self,phys):
+        #phys is the physical object
+        self.phys = phys
+
+    def invsquare(self,soundsample,ophys):
+        distance = self.phys.dist(ophys)+self.phys.w0
+        scalefactor = ophys.wo**2/(ophys.w0+distance)**2
+
+
 
 
 

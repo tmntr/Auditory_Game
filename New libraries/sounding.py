@@ -2,6 +2,8 @@ import numpy as np
 import pyaudio
 from wavio import read
 from spacing import Physical
+import physicsing
+import ffting
 import math
 import time
 
@@ -47,16 +49,17 @@ class AudioManager:
         self._rframes[self._index] = 0.0
 
 
-
-
 class Sounder:
-    def __init__(self):
+    def __init__(self,phys):
         self.sound = np.array([])
         self.lsound = np.array([])
         self.rsound = np.array([])
         self.tempsound = self.sound
         self.index = 0
         self.playing = False
+        self.phys = phys
+        self.profiler = Profiler(phys)
+        self.updatespeed = SR//20
 
     def set_sound_as_file(self,filename):
 
@@ -71,25 +74,36 @@ class Sounder:
         for i in range(0, len(sound)):
             sound[i] /= loudest
         self.sound = sound
+        self.lsound = np.zeros(len(self.sound))
+        self.rsound = np.zeros(len(self.sound))
 
 
     def sendFrame(self,manager,delayl=0,delayr=0):
         offsetl = delayl/SR
         offsetr = delayr/SR
-        frame = self.sound[self.index]
-        manager.queueSoundFrame(frame,offsetl,offsetr)
+        framel = self.lsound[self.index]
+        framer = self.rsound[self.index]
+        manager.queueSoundFrame(framel,framer,offsetl,offsetr)
 
-    def cycle(self,manager):
-        self.sendFrame(manager)
+    def cycle(self,listener):
+        self.profile(listener)
+        self.sendFrame(listener.manager)
         self.index += 1
 
 
-    def profile(self):
-        pass
-
-
-
-
+    def profile(self,listener):
+        if self.index % self.updatespeed  == 0:
+            if self.index + self.updatespeed > len(self.sound):
+                finalindex = len(self.sound)
+            else:
+                finalindex = self.index + self.updatespeed
+            sample = np.array(self.sound[self.index:finalindex])
+            sample = self.profiler.profile(sample,listener)
+            self.lsound[self.index:finalindex] = sample
+            self.rsound[self.index:finalindex] = sample
+            for item in self.lsound[0:120]:
+                print(item)
+            x = 1/0
 
 
 
@@ -99,25 +113,37 @@ class Profiler:
         self.phys = phys
 
     def invsquare(self,soundsample,ophys):
-        distance = self.phys.dist(ophys)+self.phys.w0
-        scalefactor = ophys.wo**2/(ophys.w0+distance)**2
+        distance = self.phys.dist(ophys)+self.phys.w0+ophys.w0
+        scalefactor = ophys.w0**2/(distance)**2
+        newsample = soundsample*scalefactor
+        return newsample
+
+    def attenuateoverdistance(self,soundsample,ophys,substance = 'air'):
+        distance = self.phys.dist(ophys)+self.phys.w0+ophys.w0
+        atco = physicsing.ac(substance)
+        sf = physicsing.attenuate_scale_factor(atco,distance)
+        newsample = ffting.attenuate_sample(soundsample,sf)
+        return newsample
+
+    def profile(self,sample,listener):
+        sample = self.invsquare(sample,listener.phys)
+        sample = self.attenuateoverdistance(sample,listener.phys,'air')
 
 
+class Ear:
+    def __init__(self,phys,manager):
+        self.phys = phys
+        self.manager = manager
+    def listen(self):
+        self.manager.cycle()
 
 
+me = Ear(Physical(0,0),AudioManager())
 
-'''myHeart = AudioManager()
+waves = Sounder(Physical(0,10))
 
-running = True
+waves.set_sound_as_file('nestednicewaves.wav')
 
-t = 0
-frequency = 440
-
-while t < 4:
-    t += 1/44100
-    value = 0.5*np.sin(2*np.pi*frequency*t)
-    valuel = value
-    valuer = value
-
-    myHeart.queueSoundFrame(value,valuer)
-    myHeart.cycle()'''
+while True:
+    waves.cycle(me)
+    me.listen()

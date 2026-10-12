@@ -56,7 +56,7 @@ class Sounder:
         self.rsound = np.array([])
         self.tempsound = self.sound
         self.index = 0
-        self.playing = False
+        self.playing = True
         self.phys = phys
         self.profiler = Profiler(phys)
         self.updatespeed = SR//20
@@ -86,9 +86,13 @@ class Sounder:
         manager.queueSoundFrame(framel,framer,offsetl,offsetr)
 
     def cycle(self,listener):
-        self.profile(listener)
-        self.sendFrame(listener.manager)
-        self.index += 1
+        if self.playing:
+            self.profile(listener)
+            self.sendFrame(listener.manager)
+            self.index += 1
+            if self.index >= len(self.sound):
+                self.playing = False
+        self.index %= len(self.sound)
 
 
     def profile(self,listener):
@@ -101,9 +105,7 @@ class Sounder:
             sample = self.profiler.profile(sample,listener)
             self.lsound[self.index:finalindex] = sample
             self.rsound[self.index:finalindex] = sample
-            for item in self.lsound[0:120]:
-                print(item)
-            x = 1/0
+
 
 
 
@@ -114,12 +116,12 @@ class Profiler:
 
     def invsquare(self,soundsample,ophys):
         distance = self.phys.dist(ophys)+self.phys.w0+ophys.w0
-        scalefactor = ophys.w0**2/(distance)**2
+        scalefactor = self.phys.w0**2/(distance)**2
         newsample = soundsample*scalefactor
         return newsample
 
     def attenuateoverdistance(self,soundsample,ophys,substance = 'air'):
-        distance = self.phys.dist(ophys)+self.phys.w0+ophys.w0
+        distance = self.phys.dist(ophys)
         atco = physicsing.ac(substance)
         sf = physicsing.attenuate_scale_factor(atco,distance)
         newsample = ffting.attenuate_sample(soundsample,sf)
@@ -128,6 +130,7 @@ class Profiler:
     def profile(self,sample,listener):
         sample = self.invsquare(sample,listener.phys)
         sample = self.attenuateoverdistance(sample,listener.phys,'air')
+        return sample
 
 
 class Ear:
@@ -140,10 +143,19 @@ class Ear:
 
 me = Ear(Physical(0,0),AudioManager())
 
-waves = Sounder(Physical(0,10))
+waves = Sounder(Physical(0,0,5))
 
 waves.set_sound_as_file('nestednicewaves.wav')
 
+time0 = 0
+time1 = time.time()
+
 while True:
+    time0 = time.time()
+    deltatime = time0 - time1
+
     waves.cycle(me)
     me.listen()
+    waves.phys.y += 1*deltatime
+
+    time1 = time0

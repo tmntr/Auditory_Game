@@ -27,6 +27,8 @@ def decibel_attenuation(ac,f,d):
 #actually, since it will then just be plugged back into the decibel reducer, why not just use the scale factor straight away?
 def attenuate(ac,f,d):
     return math.exp(-ac*d*f**2)
+def quick_attenuate(sf,f):
+    return math.exp(-sf*f**2)
 
 def attenuate_scale_factor(ac,d):
     return math.exp(-ac*d)

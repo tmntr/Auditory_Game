@@ -1,13 +1,13 @@
 import pygame
 import time
 
-numberofwobbles = 2
+numberofwobbles =3
 
-SCREENWIDTH = 1600
-SCREENHEIGHT = 900
+SCREENWIDTH = 1600*3/4
+SCREENHEIGHT = 900*3/4
 
 MAXAGE = 1
-MAXDISTANCE = 1
+MAXDISTANCE = 2
 z0 = 0.5
 pygame.init()
 
@@ -54,32 +54,34 @@ class Wobble:
 
 
 
-forward = 0.125
+forward = 0.125*0
 right = 1
 
 wobbles = [Wobble(screen,forward,right)]
 
 time0 = 0
 time1 = time.time()
+
 while True:
     #thinking
     time0 = time.time()
     deltatime = time0 - time1
-    wobblekilllist = []
-    for wobble in wobbles:
-        wobble.cycle(deltatime)
-        if wobble.distance() > MAXDISTANCE:
-            wobblekilllist.append(wobble)
-    time1 = time0
-    if not len(wobbles):
-        wobbles.append(Wobble(screen, forward, right))
-    else:
-        if len(wobbles) < numberofwobbles:
-            if wobbles[-1].distance() > MAXDISTANCE / numberofwobbles:
-                wobbles.append(Wobble(screen, forward, right))
-    for item in wobblekilllist:
-        wobbles.remove(item)
     if deltatime >= 0:
+        wobblekilllist = []
+        for wobble in wobbles:
+            wobble.cycle(deltatime)
+            if wobble.distance() > MAXDISTANCE:
+                wobblekilllist.append(wobble)
+        time1 = time0
+        if not len(wobbles):
+            wobbles.append(Wobble(screen, forward, right))
+        else:
+            if len(wobbles) < numberofwobbles:
+                if wobbles[-1].distance() > MAXDISTANCE / numberofwobbles:
+                    wobbles.append(Wobble(screen, forward, right))
+        for item in wobblekilllist:
+            wobbles.remove(item)
+
         #showing
         screen.fill(0)
         for wobble in wobbles:

@@ -1,7 +1,7 @@
 import numpy as np
 import pyaudio
 from wavio import read
-from spacing import Physical
+from spacing import Physical,PhysHead
 import physicsing
 import ffting
 import math
@@ -10,6 +10,7 @@ import time
 p = pyaudio.PyAudio()
 
 SR = 44100
+SOS = 340
 
 class AudioManager:
     def __init__(self,channels = 2, samplerate = SR):
@@ -78,9 +79,9 @@ class Sounder:
         self.rsound = np.zeros(len(self.sound))
 
 
-    def sendFrame(self,manager,delayl=0,delayr=0):
-        offsetl = delayl/SR
-        offsetr = delayr/SR
+    def sendFrame(self,manager,delayl=0.0,delayr=0.0):
+        offsetl = delayl//SR
+        offsetr = delayr//SR
         framel = self.lsound[self.index]
         framer = self.rsound[self.index]
         manager.queueSoundFrame(framel,framer,offsetl,offsetr)
@@ -88,11 +89,27 @@ class Sounder:
     def cycle(self,listener):
         if self.playing:
             self.profile(listener)
-            self.sendFrame(listener.manager)
+            delays = self.finddelays(listener)
+            self.sendFrame(listener.manager,*delays)
             self.index += 1
             if self.index >= len(self.sound):
                 self.playing = False
         self.index %= len(self.sound)
+
+    def finddelays(self,listener):
+
+        if isinstance(listener,(Head)):
+            distl = self.phys.dist(listener.physl)
+            distr = self.phys.dist(listener.physr)
+        elif isinstance(listener,(Ear)):
+            distl = self.phys.dist(listener.phys)
+            distr = self.phys.dist(listener.phys)
+
+        dell = distl/SOS
+        delr = distr/SOS
+
+        return (dell, delr)
+
 
 
     def profile(self,listener):
@@ -102,9 +119,9 @@ class Sounder:
             else:
                 finalindex = self.index + self.updatespeed
             sample = np.array(self.sound[self.index:finalindex])
-            sample = self.profiler.profile(sample,listener)
-            self.lsound[self.index:finalindex] = sample
-            self.rsound[self.index:finalindex] = sample
+            (samplel,sampler) = self.profiler.profile(sample,listener)
+            self.lsound[self.index:finalindex] = samplel
+            self.rsound[self.index:finalindex] = sampler
 
 
 
@@ -128,9 +145,17 @@ class Profiler:
         return newsample
 
     def profile(self,sample,listener):
-        sample = self.invsquare(sample,listener.phys)
-        sample = self.attenuateoverdistance(sample,listener.phys,'air')
-        return sample
+        if isinstance(listener,(Head)):
+            samplel = self.invsquare(sample,listener.physl)
+            samplel = self.attenuateoverdistance(samplel,listener.physl,'air')
+            sampler = self.invsquare(sample,listener.physr)
+            sampler = self.attenuateoverdistance(sampler,listener.physr,'air')
+        else:
+            sample = self.invsquare(sample,listener.phys)
+            sample = self.attenuateoverdistance(sample,listener.phys,'air')
+            samplel = sample
+            sampler = sample
+        return (samplel,sampler)
 
 
 class Ear:
@@ -140,10 +165,27 @@ class Ear:
     def listen(self):
         self.manager.cycle()
 
+class Head:
+    def __init__(self,physhead,manager):
+        self.physhead = physhead
+        self.manager = manager
+    def listen(self):
+        self.manager.cycle()
 
-me = Ear(Physical(0,0),AudioManager())
+    @property
+    def physl(self):
+        return self.physhead.lear
 
-waves = Sounder(Physical(0,0,5))
+    @property
+    def physr(self):
+        return self.physhead.rear
+
+
+#me = Ear(Physical(0,0),AudioManager())
+
+me = Head(PhysHead(Physical(0,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
+
+waves = Sounder(Physical(-1,0,1))
 
 waves.set_sound_as_file('nestednicewaves.wav')
 
@@ -154,8 +196,8 @@ while True:
     time0 = time.time()
     deltatime = time0 - time1
 
+
     waves.cycle(me)
     me.listen()
-    waves.phys.y += 1*deltatime
 
     time1 = time0

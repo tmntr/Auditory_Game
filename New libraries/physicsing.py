@@ -14,7 +14,7 @@ def ac(substance):
 
 #alpha/f**2
 def attenuation_coefficient(dvc,density,sos,vv = 0):
-    return ((2*dvc+3/2*vv)*4*PI**2)/(3*density*sos)
+    return ((2*dvc+(3/2*vv))*4*(PI**2))/(3*density*sos**3)
 
 #A(d) = A*math.exp(-ac*f**2*d)
 #A(d)/A = math.exp(-ac*f**2*d)
@@ -31,4 +31,4 @@ def quick_attenuate(sf,f):
     return math.exp(-sf*f**2)
 
 def attenuate_scale_factor(ac,d):
-    return math.exp(-ac*d)
+    return ac*d

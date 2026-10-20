@@ -12,7 +12,7 @@ def attenuate_sample(sample,sf,Fs = 44100):
     newsignal = np.zeros(N, dtype=np.complex128)
     freq = np.fft.fftfreq(N, T)
     for i in range(len(fftedsignal)):
-        newsignal[i] = fftedsignal[i] * (physicsing.quick_attenuate(fftedsignal[i],sf))
+        newsignal[i] = fftedsignal[i] * (physicsing.quick_attenuate(sf,freq[i]))
 
     new_sample = np.real(np.fft.ifft(newsignal, N, norm='forward'))
 

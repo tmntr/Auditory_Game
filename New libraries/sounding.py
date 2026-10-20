@@ -144,11 +144,14 @@ class Profiler:
         newsample = ffting.attenuate_sample(soundsample,sf)
         return newsample
 
+
     def profile(self,sample,listener):
         if isinstance(listener,(Head)):
-            samplel = self.invsquare(sample,listener.physl)
+            samplel = sample
+            samplel = self.invsquare(samplel,listener.physl)
             samplel = self.attenuateoverdistance(samplel,listener.physl,'air')
-            sampler = self.invsquare(sample,listener.physr)
+            sampler = sample
+            sampler = self.invsquare(sampler,listener.physr)
             sampler = self.attenuateoverdistance(sampler,listener.physr,'air')
         else:
             sample = self.invsquare(sample,listener.phys)
@@ -183,9 +186,9 @@ class Head:
 
 #me = Ear(Physical(0,0),AudioManager())
 
-me = Head(PhysHead(Physical(0,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
+me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
 
-waves = Sounder(Physical(-1,0,1))
+waves = Sounder(Physical(1,0,5))
 
 waves.set_sound_as_file('nestednicewaves.wav')
 

@@ -96,6 +96,16 @@ class Sounder:
                 self.playing = False
         self.index %= len(self.sound)
 
+    def start(self):
+        self.playing = True
+        self.index = 0
+
+    def play(self):
+        self.playing = True
+
+    def pause(self):
+        self.playing = False
+
     def finddelays(self,listener):
 
         if isinstance(listener,(Head)):
@@ -133,7 +143,7 @@ class Profiler:
 
     def invsquare(self,soundsample,ophys):
         distance = self.phys.dist(ophys)+self.phys.w0+ophys.w0
-        scalefactor = self.phys.w0**2/(distance)**2
+        scalefactor = (self.phys.w0/distance)**2
         newsample = soundsample*scalefactor
         return newsample
 
@@ -184,9 +194,29 @@ class Head:
         return self.physhead.rear
 
 
+def createHead(x,y,earwidth):
+    '''
+
+    Parameters
+    ----------
+    x : float, the x coordinate of the head's centre
+    y : float, the y coordinate of the head's centre
+    earwidth : float, the distance between the ears
+
+    Returns
+    -------
+    A fully constructed head object with Physicals representing its centre and two ears as well as a built in AudioManager
+    '''
+    return Head(PhysHead(Physical(x,y,0,0),Physical(x-earwidth/2,y),Physical(x+earwidth/2,y)),AudioManager())
+
+def createSounder(x,y,soundname,w0=0.3,started=True):
+    thing =  Sounder(Physical(x,y,w0))
+    thing.set_sound_as_file(soundname)
+    return thing
+
 #me = Ear(Physical(0,0),AudioManager())
 
-me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
+'''me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
 
 waves = Sounder(Physical(1,0,5))
 
@@ -203,4 +233,4 @@ while True:
     waves.cycle(me)
     me.listen()
 
-    time1 = time0
+    time1 = time0'''

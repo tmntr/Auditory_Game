@@ -34,6 +34,15 @@ class AudioManager:
         rindex = int(self._index + offsetr*self.samplerate) % self.length
         self._rframes[rindex] += valuer
 
+    def queueSoundChunk(self,chunkl,chunkr,offsetl = 0,offsetr = 0):
+        lindex = int(self._index + offsetl*self.samplerate) % self.length
+        for i in range(len(chunkl)):
+            self._lframes[(lindex+i)%len(self._lframes)] += chunkl[i]
+
+        rindex = int(self._index + offsetr*self.samplerate) % self.length
+        for i in range(len(chunkr)):
+            self._rframes[(rindex+i)%len(self._rframes)] += chunkr[i]
+
 
     def cycle(self):
         self.playFrame()
@@ -59,8 +68,10 @@ class Sounder:
         self.index = 0
         self.playing = True
         self.phys = phys
+        self.nextimportantframe = 0
         self.profiler = Profiler(phys)
         self.updatespeed = SR//20
+
 
     def set_sound_as_file(self,filename):
 
@@ -86,14 +97,32 @@ class Sounder:
         framer = self.rsound[self.index]
         manager.queueSoundFrame(framel,framer,offsetl,offsetr)
 
+    def sendChunk(self,f1,f2,manager,delayl=0.0,delayr=0.0):
+        offsetl = delayl//SR
+        offsetr = delayr//SR
+
+
+        chunkl = self.lsound[f1:f2]
+        chunkr = self.rsound[f1:f2]
+
+        manager.queueSoundChunk(chunkl,chunkr,delayl,delayr)
+
+
     def cycle(self,listener):
         if self.playing:
-            self.profile(listener)
-            delays = self.finddelays(listener)
-            self.sendFrame(listener.manager,*delays)
+            if self.nextimportantframe == self.index:
+                self.profile(listener)
+                delays = self.finddelays(listener)
+                f1 = self.index
+                f2 = min(self.index+self.updatespeed,len(self.sound))
+                self.sendChunk(f1,f2,listener.manager,*delays)
+                if f2 == len(self.sound):
+                    self.nextimportantframe = 0
+                else:
+                    self.nextimportantframe = f2
+                if self.index >= len(self.sound):
+                    self.playing = False
             self.index += 1
-            if self.index >= len(self.sound):
-                self.playing = False
         self.index %= len(self.sound)
 
     def start(self):
@@ -216,13 +245,13 @@ def createSounder(x,y,soundname,w0=0.3,started=True):
 
 #me = Ear(Physical(0,0),AudioManager())
 
-'''me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
+me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
 
 waves = Sounder(Physical(1,0,5))
 
 waves.set_sound_as_file('nestednicewaves.wav')
 
-time0 = 0
+'''time0 = 0
 time1 = time.time()
 
 while True:
@@ -233,4 +262,5 @@ while True:
     waves.cycle(me)
     me.listen()
 
-    time1 = time0'''
+    time1 = time0
+    '''

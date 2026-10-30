@@ -13,7 +13,7 @@ MULTIPLIER = 40
 SCREENWIDTH = REALWIDTH*MULTIPLIER
 SCREENHEIGHT = REALHEIGHT*MULTIPLIER
 
-theScreen = pygame.display.set_mode((SCREENWIDTH,SCREENHEIGHT))
+screensettings = (SCREENWIDTH,SCREENHEIGHT)
 
 class GameObject:
     def __init__(self,phys,colour = None):
@@ -30,15 +30,17 @@ class GameObject:
         pygame.draw.circle(screen,self.colour,(apx*MULTIPLIER,apy*MULTIPLIER),2)
 
 class Player(GameObject):
-    def __init__(self,phys,colour = None,d=0):
+    def __init__(self,phys,colour = "red",d=0):
         super().__init__(phys,colour)
         self.phys.direction = d
         self.speed = 0.5
         self.rspeed = 0.5
         self.interactlastframe = False
+        self.interact = False
 
     def control(self,keys,dtime):
         if keys[pygame.K_LEFT]:
+
             self.phys.direction -= 2*math.pi*dtime*self.rspeed
         if keys[pygame.K_RIGHT]:
             self.phys.direction += 2*math.pi*dtime*self.rspeed
@@ -49,17 +51,23 @@ class Player(GameObject):
 
         if keys[pygame.K_SPACE]:
             if not self.interactlastframe:
-                self.switch()
-            self.interactlastframe = True
+                self.interact = True
+                self.interactlastframe = True
+            else:
+                self.interact = False
         else:
             self.interactlastframe = False
 
     def draw(self,screen):
         apx = self.phys.x + REALWIDTH / 2
         apy = -1 * self.phys.y + REALHEIGHT / 2
-        apx2 = apx + 0.5*math.sin(self.phys.direction)
-        apy2 = apy - 0.5*math.cos(self.phys.direction)
+        apx2 = apx + 0.5*math.sin(self.phys.direction-0.5)
+        apy2 = apy - 0.5*math.cos(self.phys.direction-0.5)
+        apx3 = apx + 0.5*math.sin(self.phys.direction+0.5)
+        apy3 = apy - 0.5*math.cos(self.phys.direction+0.5)
         pygame.draw.line(screen, "black", (apx * MULTIPLIER, apy * MULTIPLIER), (apx2 * MULTIPLIER, apy2 * MULTIPLIER), 1)
+        pygame.draw.line(screen, "black", (apx * MULTIPLIER, apy * MULTIPLIER), (apx3 * MULTIPLIER, apy3 * MULTIPLIER),1)
+        pygame.draw.line(screen,"black",(apx2 * MULTIPLIER, apy2 * MULTIPLIER), (apx3 * MULTIPLIER, apy3 * MULTIPLIER),1)
         pygame.draw.circle(screen, self.colour, (apx * MULTIPLIER, apy * MULTIPLIER), 3)
 
     def validswitch(self,switch):
@@ -73,12 +81,19 @@ class Player(GameObject):
         -------
         a boolean value determining whether this switch is in a good place to be used
         '''
-        bearing = self.phys.get_relative_bearing(switch.phys)
-        distance = self.phys.dist(switch.phys)
+        bearing = self.phys.get_relative_bearing(switch)
+        distance = self.phys.dist(switch)
         if (bearing < 0.5 or bearing > 2*math.pi-0.5) and distance < 0.5:
             return True
         else:
             return False
+
+    def update(self,objects):
+        if self.interact:
+            for thing in objects:
+                if isinstance(thing.gameObject,Switch):
+                    if self.validswitch(thing.phys):
+                        thing.switch()
 
 
 class Switch(GameObject):
@@ -103,34 +118,19 @@ class Switch(GameObject):
 
 
 
-monophys = Physical(0,0)
-Monolith = Switch(monophys)
+'''deckphys = Physical(0,0)
 
-deckphys = Physical(0,0)
-Deckard = Player(deckphys,"red")
+theGame = Game(deckphys)
 
-time0 = 0
-time1 = time.time()
 while True:
-    time1 = time.time()
-    deltatime = time1-time0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-    keys = pygame.key.get_pressed()
+    
 
-
-    theScreen.fill((255,255,255))
-    Monolith.draw(theScreen)
-    if Deckard.validswitch(Monolith):
-        Monolith.switch()
-    Deckard.draw(theScreen)
-    Deckard.control(keys,deltatime)
-    pygame.display.flip()
-    time0 = time1
+    theGame.update()
+    theGame.draw(theScreen)'''
 
 
 
 
-
-pygame.init()

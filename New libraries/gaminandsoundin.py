@@ -87,10 +87,10 @@ def pygameCycle(game):
     time1 = time.time()
     timesincelastdraw = 0
     while game.running:
-        '''for event in pygame.event.get():
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.running = False
-                pygame.quit()'''
+                pygame.quit()
         time1 = time.time()
         deltatime = time1 - time0
 
@@ -102,6 +102,7 @@ def pygameCycle(game):
 
         if keys[pygame.K_ESCAPE]:
             game.running = False
+            pygame.quit()
 
         if timesincelastdraw > 1/40:
             game.draw(myScreen)
@@ -109,7 +110,7 @@ def pygameCycle(game):
             timesincelastdraw = 0
         else:
             timesincelastdraw += deltatime
-        pygame.event.pump()
+        #pygame.event.pump()
         time.sleep(0.001)
 
 
@@ -128,6 +129,6 @@ pygameCycle(theGame)
 
 
 
-pygame.quit()
+
 
 

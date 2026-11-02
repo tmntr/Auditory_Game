@@ -19,9 +19,12 @@ class Physical:
 
     #Function to find cartesian distance between 2 objects
     def dist(self,op):
-        dx = self.x - op.x
-        dy = self.y - op.y
-        return (dx**2 + dy**2)**0.5
+        if isinstance(op,Physical):
+            dx = self.x - op.x
+            dy = self.y - op.y
+            return (dx**2 + dy**2)**0.5
+        elif isinstance(op,LinePhysical):
+            return op.disttophys(self)
 
     def disttopoint(self,x,y):
         dx = self.x - x
@@ -70,6 +73,17 @@ class Physical:
         return math.cos(self.get_relative_bearing(op))
 
 
+class RectPhysical:
+    def __init__(self,x,y,w,h,w0=0.3,d=None):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.w0 = w0
+
+
+
+
 class PhysHead:
     def __init__(self,centre,lear,rear,d=0.0):
 
@@ -102,3 +116,5 @@ class PhysHead:
         ycoord = self.centre.y + rearbearing * math.cos(rearbearing)
 
         return Physical(xcoord, ycoord, 0.02, rearbearing)
+
+

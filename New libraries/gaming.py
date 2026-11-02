@@ -34,7 +34,7 @@ class Player(GameObject):
         super().__init__(phys,colour)
         self.phys.direction = d
         self.speed = 0.5
-        self.rspeed = 0.5
+        self.rspeed = 0.25
         self.interactlastframe = False
         self.interact = False
 
@@ -93,7 +93,7 @@ class Player(GameObject):
             for thing in objects:
                 if isinstance(thing.gameObject,Switch):
                     if self.validswitch(thing.phys):
-                        thing.switch()
+                        thing.gameObject.switch()
 
 
 class Switch(GameObject):
@@ -114,6 +114,7 @@ class Switch(GameObject):
             self.colour = "cyan"
 
 
+class 
 
 
 

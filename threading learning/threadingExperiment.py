@@ -4,7 +4,7 @@ import time
 
 def rubbingTummy(value):
     while True:
-        print("Rubbing Tummy...")
+        print("Rubbing...")
         time.sleep(value)
 
 def pattingHead(value):
@@ -13,7 +13,7 @@ def pattingHead(value):
         time.sleep(value)
 
 x = threading.Thread(target=rubbingTummy, args=(1,))
-y = threading.Thread(target=pattingHead, args=(0.5))
+y = threading.Thread(target=pattingHead, args=(0.5,))
 
 x.start()
 y.start()

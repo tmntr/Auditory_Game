@@ -23,7 +23,7 @@ class Physical:
             dx = self.x - op.x
             dy = self.y - op.y
             return (dx**2 + dy**2)**0.5
-        elif isinstance(op,LinePhysical):
+        elif isinstance(op,RectPhysical):
             return op.disttophys(self)
 
     def disttopoint(self,x,y):
@@ -74,12 +74,82 @@ class Physical:
 
 
 class RectPhysical:
-    def __init__(self,x,y,w,h,w0=0.3,d=None):
+    def __init__(self,x,y,w,h,w0=0.3):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.w0 = w0
+
+    def vertices(self):
+        x_coords = [self.x,self.x+self.w]
+        y_coords = [self.y,self.y+self.h]
+        points = []
+        for x in x_coords:
+            for y in y_coords:
+                points.append((x,y))
+        return points
+
+    def withinx(self,op):
+        return self.x < op.x < self.x+self.w
+
+    def withiny(self,op):
+        return self.y < op.y < self.y+self.h
+
+    def disttophys(self,op):
+        if self.withinx(op):
+            if self.withiny(op):
+                return -1
+            else:
+                return min([abs(self.y-op.y),abs(self.y+self.h-op.y)])
+        else:
+            if self.withiny(op):
+                return min([abs(self.x - op.x), abs(self.x + self.w - op.x)])
+            else:
+                return min([op.disttopoint(*point) for point in self.vertices()])
+
+    def geddoudahere(self,op):
+        '''
+
+        Parameters
+        ----------
+        op: another Physical object that the rectangle wishes to displace from inside itself
+
+        Returns
+        -------
+        nothing, but it does move the op to the closest position on one of the rectangle's edges. If this is called every frame, it should stop a player's physical from entering, effectively providing collision
+        '''
+
+
+        disttobottom = op.y-self.y
+        disttotop = op.y-self.y-self.h
+        disttoleft = op.x-self.x
+        disttoright = op.x-self.x-self.w
+
+        left = disttoleft<disttoright
+        up = disttotop<disttobottom
+
+        if left and up:
+            if disttoleft > disttotop:
+                op.y = self.y+self.h
+            else:
+                op.x = self.x
+        elif left:
+            if disttoleft > disttobottom:
+                op.y = self.y
+            else:
+                op.x = self.x
+        elif up:
+            if disttoright > disttotop:
+                op.y = self.y+self.h
+            else:
+                op.x = self.x+self.w
+        else:
+            if disttoright > disttobottom:
+                op.y = self.y
+            else:
+                op.x = self.x+self.w
+
 
 
 
@@ -118,3 +188,7 @@ class PhysHead:
         return Physical(xcoord, ycoord, 0.02, rearbearing)
 
 
+if __name__ == '__main__':
+    rectangle = RectPhysical(0,0,4,2)
+    point = Physical(5,3)
+    print(point.dist(rectangle))

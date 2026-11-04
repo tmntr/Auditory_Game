@@ -24,7 +24,7 @@ class Physical:
             dy = self.y - op.y
             return (dx**2 + dy**2)**0.5
         elif isinstance(op,RectPhysical):
-            return op.disttophys(self)
+            return op.dist(self)
 
     def disttopoint(self,x,y):
         dx = self.x - x
@@ -96,17 +96,36 @@ class RectPhysical:
     def withiny(self,op):
         return self.y < op.y < self.y+self.h
 
-    def disttophys(self,op):
+    def findNearestPoint(self,op):
         if self.withinx(op):
             if self.withiny(op):
-                return -1
+                return self.geddoudahere(op)
             else:
-                return min([abs(self.y-op.y),abs(self.y+self.h-op.y)])
+                if op.y > self.y + self.h:
+                    return (op.x,self.y+self.h)
+                else:
+                    return (op.x,self.y)
         else:
             if self.withiny(op):
-                return min([abs(self.x - op.x), abs(self.x + self.w - op.x)])
+                if op.x > self.x + self.w:
+                    return (self.x + self.w, op.y)
+                else:
+                    return (self.x, op.y)
             else:
-                return min([op.disttopoint(*point) for point in self.vertices()])
+                min = math.inf
+                minindex = -1
+                for i in range(4):
+                    opdist = op.disttopoint(*self.vertices()[i])
+                    if opdist < min:
+                        minindex = i
+                        min = opdist
+                return self.vertices()[minindex]
+
+    def dist(self, op):
+        if self.withinx(op) and self.withiny(op):
+            return -1
+        else:
+            return op.disttopoint(*self.findNearestPoint(op))
 
     def geddoudahere(self,op):
         '''
@@ -120,36 +139,37 @@ class RectPhysical:
         nothing, but it does move the op to the closest position on one of the rectangle's edges. If this is called every frame, it should stop a player's physical from entering, effectively providing collision
         '''
 
+        tempop = op.copy()
 
-        disttobottom = op.y-self.y
-        disttotop = op.y-self.y-self.h
-        disttoleft = op.x-self.x
-        disttoright = op.x-self.x-self.w
+        disttobottom = tempop.y-self.y
+        disttotop = tempop.y-self.y-self.h
+        disttoleft = tempop.x-self.x
+        disttoright = tempop.x-self.x-self.w
 
         left = disttoleft<disttoright
         up = disttotop<disttobottom
 
         if left and up:
             if disttoleft > disttotop:
-                op.y = self.y+self.h
+                tempop.y = self.y+self.h
             else:
-                op.x = self.x
+                tempop.x = self.x
         elif left:
             if disttoleft > disttobottom:
-                op.y = self.y
+                tempop.y = self.y
             else:
-                op.x = self.x
+                tempop.x = self.x
         elif up:
             if disttoright > disttotop:
-                op.y = self.y+self.h
+                tempop.y = self.y+self.h
             else:
-                op.x = self.x+self.w
+                tempop.x = self.x+self.w
         else:
             if disttoright > disttobottom:
-                op.y = self.y
+                tempop.y = self.y
             else:
-                op.x = self.x+self.w
-
+                tempop.x = self.x+self.w
+        return (tempop.x,tempop.y)
 
 
 
@@ -191,4 +211,4 @@ class PhysHead:
 if __name__ == '__main__':
     rectangle = RectPhysical(0,0,4,2)
     point = Physical(5,3)
-    print(point.dist(rectangle))
+    print(rectangle.findNearestPoint(point))

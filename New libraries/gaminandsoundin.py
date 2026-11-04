@@ -3,8 +3,8 @@ import time
 import random
 import threading
 
-from spacing import Physical,PhysHead
-from gaming import Player,Switch,screensettings
+from spacing import Physical,PhysHead,RectPhysical
+from gaming import Player,Switch,screensettings,Wall
 from sounding import Head,AudioManager,Sounder
 
 #this class wraps the audio and game capabilities of the player into one
@@ -26,6 +26,12 @@ class AudioSwitch:
         self.sounder = Sounder(self.phys)
         self.gameObject = Switch(self.phys)
 
+class AudioWall:
+    def __init__(self,rectPhys):
+        self.rectPhys = rectPhys
+        self.sounder = Sounder(self.rectPhys)
+        self.gameObject = Wall(self.rectPhys)
+
 
 
 class Game:
@@ -43,12 +49,18 @@ class Game:
 
 #        print(self.user.player.phys.y)
 
-    def addSwitch(self,x,y,startState,soundstate):
+    def add_switch(self, x, y, startState, soundname):
         phys = Physical(x,y,0.3,0)
         switch = AudioSwitch(phys)
-        switch.sounder.set_sound_as_file(soundstate)
+        switch.sounder.set_sound_as_file(soundname)
         switch.gameObject.state = startState
         self.sounders.append(switch)
+
+    def add_wall(self,x,y,w,h,soundname):
+        rectPhys = RectPhysical(x,y,w,h)
+        wall = AudioWall(rectPhys)
+        wall.sounder.set_sound_as_file(soundname)
+        self.sounders.append(wall)
 
 
 
@@ -61,7 +73,6 @@ class Game:
         for thing in self.sounders:
             thing.gameObject.draw(screen)
 
-        # pygame.display.flip()
 
     def sound(self):
         for thing in self.sounders:
@@ -80,7 +91,8 @@ flynn = User("Flynn")
 
 theGame = Game(flynn)
 
-theGame.addSwitch(0.1,0,True,'nestednicewaves.wav')
+#theGame.add_switch(0.1, 0, True, 'nestednicewaves.wav')
+theGame.add_wall(2,4,4,9,'nestednicewaves.wav')
 
 def pygameCycle(game):
     time0 = 0
@@ -126,9 +138,3 @@ audiocycler.start()
 
 
 pygameCycle(theGame)
-
-
-
-
-
-

@@ -89,11 +89,15 @@ class Player(GameObject):
             return False
 
     def update(self,objects):
-        if self.interact:
-            for thing in objects:
-                if isinstance(thing.gameObject,Switch):
+        for thing in objects:
+            if isinstance(thing.gameObject,Switch):
+                if self.interact:
                     if self.validswitch(thing.phys):
                         thing.gameObject.switch()
+            elif isinstance(thing.gameObject,Wall):
+                if thing.rectPhys.dist(self.phys) == -1:
+                    (self.x,self.y) = thing.rectPhys.geddoudahere(self.phys)
+
 
 
 class Switch(GameObject):
@@ -114,6 +118,15 @@ class Switch(GameObject):
             self.colour = "cyan"
 
 
+class Wall:
+    def __init__(self,rectPhys,colour = "black"):
+        self.rectPhys = rectPhys
+        self.colour = colour
+    def draw(self,screen):
+        #this drawing method puts 0,0 in the centre of the screen
+        apx = self.rectPhys.x+REALWIDTH/2
+        apy = -1*self.rectPhys.y+REALHEIGHT/2
+        pygame.draw.rect(screen,self.colour,(apx*MULTIPLIER,apy*MULTIPLIER,self.rectPhys.w*MULTIPLIER,self.rectPhys.h*MULTIPLIER),2)
 
 
 

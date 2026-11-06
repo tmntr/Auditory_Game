@@ -1,5 +1,5 @@
 import math
-
+import random
 
 #PHYSICAL IMPORTANT THINGS
 #1: All angles in radians please.
@@ -80,6 +80,7 @@ class RectPhysical:
         self.w = w
         self.h = h
         self.w0 = w0
+        self.colliding = True
 
     def vertices(self):
         x_coords = [self.x,self.x+self.w]
@@ -123,6 +124,7 @@ class RectPhysical:
 
     def dist(self, op):
         if self.withinx(op) and self.withiny(op):
+
             return -1
         else:
             return op.disttopoint(*self.findNearestPoint(op))
@@ -139,37 +141,40 @@ class RectPhysical:
         nothing, but it does move the op to the closest position on one of the rectangle's edges. If this is called every frame, it should stop a player's physical from entering, effectively providing collision
         '''
 
-        tempop = op.copy()
 
-        disttobottom = tempop.y-self.y
-        disttotop = tempop.y-self.y-self.h
-        disttoleft = tempop.x-self.x
-        disttoright = tempop.x-self.x-self.w
+        x = op.x+0
+        y = op.y+0
+        w0 = op.w0+0
+
+        disttobottom = abs(y-self.y)
+        disttotop = abs(y-self.y-self.h)
+        disttoleft = abs(x-self.x)
+        disttoright = abs(x-self.x-self.w)
 
         left = disttoleft<disttoright
         up = disttotop<disttobottom
 
         if left and up:
             if disttoleft > disttotop:
-                tempop.y = self.y+self.h
+                y = self.y+self.h+w0
             else:
-                tempop.x = self.x
+                x = self.x-w0
         elif left:
             if disttoleft > disttobottom:
-                tempop.y = self.y
+                y = self.y-w0
             else:
-                tempop.x = self.x
+                x = self.x-w0
         elif up:
             if disttoright > disttotop:
-                tempop.y = self.y+self.h
+                y = self.y+self.h+w0
             else:
-                tempop.x = self.x+self.w
+                x = self.x+self.w+w0
         else:
             if disttoright > disttobottom:
-                tempop.y = self.y
+                y = self.y-w0
             else:
-                tempop.x = self.x+self.w
-        return (tempop.x,tempop.y)
+                x = self.x+self.w+w0
+        return (x,y)
 
 
 

@@ -4,22 +4,25 @@ import random
 import threading
 
 from spacing import Physical,PhysHead,RectPhysical
-from gaming import Player,Switch,screensettings,Wall
+from gaming import Player,Switch,screensettings,Wall,Link
 from sounding import Head,AudioManager,Sounder
 
 #this class wraps the audio and game capabilities of the player into one
 class User:
     def __init__(self,name):
         self.name = name
-        self.phys = Physical(0,0,0.05,0)
-        self.left = Physical(-0.1,0,0.05,0)
-        self.right = Physical(0.1,0,0.05,0)
+        self.phys = Physical(0,0,0.1,0)
+        self.left = Physical(-self.phys.w0,0,0.05,0)
+        self.right = Physical(self.phys.w0,0,0.05,0)
 
 
         myphyshead = PhysHead(self.phys,self.left,self.right,0)
 
         self.head = Head(myphyshead,AudioManager())
         self.player = Player(self.head.physhead.centre)
+
+
+
 class AudioSwitch:
     def __init__(self,phys):
         self.phys = phys
@@ -38,10 +41,13 @@ class Game:
     def __init__(self,user):
         self.user = user
         self.sounders = []
+        self.links = []
         self.running = True
 
 
     def update(self,keys,deltatime):
+        for item in self.links:
+            item.update()
 
         self.user.player.control(keys,deltatime)
         self.user.player.update(self.sounders)
@@ -79,6 +85,11 @@ class Game:
             thing.sounder.cycle(self.user.head)
         self.user.head.listen()
 
+    def link(self,index1,index2):
+        if index1 < len(self.sounders) and index2 < len(self.sounders):
+            newlink = Link(self.sounders[index1].gameObject,self.sounders[index2].gameObject)
+            self.links.append(newlink)
+
 
 
 
@@ -92,7 +103,11 @@ flynn = User("Flynn")
 theGame = Game(flynn)
 
 #theGame.add_switch(0.1, 0, True, 'nestednicewaves.wav')
-theGame.add_wall(2,4,4,9,'nestednicewaves.wav')
+theGame.add_wall(2,-2,4,9,'nestednicewaves.wav')
+theGame.add_switch(-1,1,True,'nestednicewaves.wav')
+
+theGame.link(0,1)
+
 
 def pygameCycle(game):
     time0 = 0

@@ -95,8 +95,31 @@ class Player(GameObject):
                     if self.validswitch(thing.phys):
                         thing.gameObject.switch()
             elif isinstance(thing.gameObject,Wall):
-                if thing.rectPhys.dist(self.phys) == -1:
-                    (self.x,self.y) = thing.rectPhys.geddoudahere(self.phys)
+
+                if thing.rectPhys.dist(self.phys) < self.phys.w0:
+                    if thing.rectPhys.colliding:
+                        newpos = thing.rectPhys.geddoudahere(self.phys)
+                        self.phys.x = newpos[0]
+                        self.phys.y = newpos[1]
+
+
+class Link:
+    def __init__(self,thing1,thing2):
+        self.thing1 = thing1
+        self.thing2 = thing2
+        self.thing1laststate = thing1.state
+        self.thing2laststate = thing2.state
+
+
+    def update(self):
+        if self.thing1.state != self.thing1laststate:
+            self.thing2.updatestate(self.thing1.state)
+            self.thing1laststate = self.thing1.state
+            self.thing2laststate = self.thing2.state
+        if self.thing2.state != self.thing2laststate:
+            self.thing1.updatestate(self.thing2.state)
+            self.thing1laststate = self.thing1.state
+            self.thing2laststate = self.thing2.state
 
 
 
@@ -108,6 +131,10 @@ class Switch(GameObject):
             colour = "red"
         super().__init__(phys,colour)
         self.state = startstate
+
+    def updatestate(self,newstate):
+        self.state = not newstate
+        self.switch
 
     def switch(self):
         if self.state:
@@ -122,10 +149,20 @@ class Wall:
     def __init__(self,rectPhys,colour = "black"):
         self.rectPhys = rectPhys
         self.colour = colour
+        self.state = True
+
+    def updatestate(self,newstate):
+        self.state = newstate
+        self.rectPhys.colliding = self.state
+        if self.state:
+            self.colour = 'black'
+        else:
+            self.colour = 'gray'
+
     def draw(self,screen):
         #this drawing method puts 0,0 in the centre of the screen
         apx = self.rectPhys.x+REALWIDTH/2
-        apy = -1*self.rectPhys.y+REALHEIGHT/2
+        apy = -1*(self.rectPhys.y+self.rectPhys.h)+REALHEIGHT/2
         pygame.draw.rect(screen,self.colour,(apx*MULTIPLIER,apy*MULTIPLIER,self.rectPhys.w*MULTIPLIER,self.rectPhys.h*MULTIPLIER),2)
 
 

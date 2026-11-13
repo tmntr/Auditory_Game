@@ -8,7 +8,7 @@ from spacing import Physical,PhysHead
 REALWIDTH = 20
 REALHEIGHT = 15
 
-MULTIPLIER = 40
+MULTIPLIER = 80
 
 SCREENWIDTH = REALWIDTH*MULTIPLIER
 SCREENHEIGHT = REALHEIGHT*MULTIPLIER
@@ -96,11 +96,12 @@ class Player(GameObject):
                         thing.gameObject.switch()
             elif isinstance(thing.gameObject,Wall):
 
-                if thing.rectPhys.dist(self.phys) < self.phys.w0:
+                if thing.rectPhys.dist(self.phys) < 1.5*self.phys.w0:
                     if thing.rectPhys.colliding:
                         newpos = thing.rectPhys.geddoudahere(self.phys)
                         self.phys.x = newpos[0]
                         self.phys.y = newpos[1]
+
 
 
 class Link:

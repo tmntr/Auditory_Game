@@ -6,6 +6,7 @@ import physicsing
 import ffting
 import math
 import time
+import random
 
 p = pyaudio.PyAudio()
 
@@ -140,6 +141,8 @@ class Sounder:
         if isinstance(listener,(Head)):
             distl = self.phys.dist(listener.physl)
             distr = self.phys.dist(listener.physr)
+            if random.randint(1,100) == 1:
+                print(distl,distr)
         elif isinstance(listener,(Ear)):
             distl = self.phys.dist(listener.phys)
             distr = self.phys.dist(listener.phys)
@@ -182,6 +185,13 @@ class Profiler:
         sf = physicsing.attenuate_scale_factor(atco,distance)
         newsample = ffting.attenuate_sample(soundsample,sf)
         return newsample
+
+    def forwardhrtf(self,soundsample,ophys):
+        howinfront = ophys.how_in_front(self.phys)
+        if howinfront > 0:
+            newsample = ffting.triangleboostfreq(soundsample,)
+        else:
+            return soundsample
 
 
     def profile(self,sample,listener):
@@ -245,11 +255,11 @@ def createSounder(x,y,soundname,w0=0.3,started=True):
 
 #me = Ear(Physical(0,0),AudioManager())
 
-me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
+#me = Head(PhysHead(Physical(0,0,0.3,0),Physical(-0.15,0),Physical(0.15,0)),AudioManager())
 
-waves = Sounder(Physical(1,0,5))
+#waves = Sounder(Physical(1,0,5))
 
-waves.set_sound_as_file('nestednicewaves.wav')
+#waves.set_sound_as_file('nestednicewaves.wav')
 
 '''time0 = 0
 time1 = time.time()

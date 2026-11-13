@@ -125,7 +125,7 @@ class RectPhysical:
     def dist(self, op):
         if self.withinx(op) and self.withiny(op):
 
-            return -1
+            return 0
         else:
             return op.disttopoint(*self.findNearestPoint(op))
 
@@ -144,7 +144,7 @@ class RectPhysical:
 
         x = op.x+0
         y = op.y+0
-        w0 = op.w0+0
+        w0 = op.w0*1.5+0
 
         disttobottom = abs(y-self.y)
         disttotop = abs(y-self.y-self.h)
@@ -180,35 +180,36 @@ class RectPhysical:
 
 
 class PhysHead:
-    def __init__(self,centre,lear,rear,d=0.0):
-
+    def __init__(self,centre,eardist):
         self.centre = centre
-        self._lear = lear
-        self._rear = rear
+        self.eardistance = eardist
 
-        self.direction = d
+
 
     def rotate(self,amount):
         self.direction += amount
         self.direction %= 2*math.pi
 
+    @property
+    def direction(self):
+        return self.centre.direction
 
     @property
     def lear(self):
-        leardistance = self.centre.dist(self._lear)
-        learbearing = self.centre.get_relative_bearing(self._lear)
+        leardistance = self.eardistance
+        learbearing = -math.pi/2
         xcoord = self.centre.x + leardistance*math.sin(learbearing+self.direction)
-        ycoord = self.centre.y + learbearing*math.cos(learbearing)
+        ycoord = self.centre.y + leardistance*math.cos(learbearing+self.direction)
 
 
-        return Physical(xcoord,ycoord,0.02,learbearing)
+        return Physical(xcoord,ycoord,0.02,self.direction)
 
     @property
     def rear(self):
-        reardistance = self.centre.dist(self._rear)
-        rearbearing = self.centre.get_relative_bearing(self._rear)
+        reardistance = self.eardistance
+        rearbearing = math.pi/2
         xcoord = self.centre.x + reardistance * math.sin(rearbearing + self.direction)
-        ycoord = self.centre.y + rearbearing * math.cos(rearbearing)
+        ycoord = self.centre.y + reardistance * math.cos(rearbearing+self.direction)
 
         return Physical(xcoord, ycoord, 0.02, rearbearing)
 

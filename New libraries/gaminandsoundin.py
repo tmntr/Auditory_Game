@@ -4,23 +4,26 @@ import random
 import threading
 
 from spacing import Physical,PhysHead,RectPhysical
-from gaming import Player,Switch,screensettings,Wall,Link
+from gaming import Player,Switch,screensettings,Wall,Link,REALWIDTH,REALHEIGHT,MULTIPLIER
 from sounding import Head,AudioManager,Sounder
 
 #this class wraps the audio and game capabilities of the player into one
 class User:
     def __init__(self,name):
         self.name = name
-        self.phys = Physical(0,0,0.1,0)
-        self.left = Physical(-self.phys.w0,0,0.05,0)
-        self.right = Physical(self.phys.w0,0,0.05,0)
+        self.eardist = 0.1
+        self.phys = Physical(0,0, self.eardist,0)
 
-
-        myphyshead = PhysHead(self.phys,self.left,self.right,0)
+        myphyshead = PhysHead(self.phys,self.eardist)
 
         self.head = Head(myphyshead,AudioManager())
         self.player = Player(self.head.physhead.centre)
-
+    @property
+    def left(self):
+        return self.head.physhead.lear
+    @property
+    def right(self):
+        return self.head.physhead.rear
 
 
 class AudioSwitch:
@@ -63,18 +66,25 @@ class Game:
         self.sounders.append(switch)
 
     def add_wall(self,x,y,w,h,soundname):
-        rectPhys = RectPhysical(x,y,w,h)
+        rectPhys = RectPhysical(x,y,w,h,0.1)
         wall = AudioWall(rectPhys)
         wall.sounder.set_sound_as_file(soundname)
         self.sounders.append(wall)
 
+    def plot_point(self,screen,x,y):
 
+
+        apx = x + REALWIDTH / 2
+        apy = -1 * y + REALHEIGHT / 2
+        pygame.draw.circle(screen, 'blue', (apx * MULTIPLIER, apy * MULTIPLIER), 1)
 
 
     def draw(self,screen):
 
         screen.fill((255, 255, 255))
         self.user.player.draw(screen)
+        self.plot_point(screen,self.user.left.x,self.user.left.y)
+        self.plot_point(screen,self.user.right.x,self.user.right.y)
 
         for thing in self.sounders:
             thing.gameObject.draw(screen)
@@ -137,6 +147,9 @@ def pygameCycle(game):
             timesincelastdraw = 0
         else:
             timesincelastdraw += deltatime
+
+
+
         #pygame.event.pump()
         time.sleep(0.001)
 

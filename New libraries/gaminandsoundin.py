@@ -66,7 +66,7 @@ class Game:
         self.sounders.append(switch)
 
     def add_wall(self,x,y,w,h,soundname):
-        rectPhys = RectPhysical(x,y,w,h,0.1)
+        rectPhys = RectPhysical(x,y,w,h,0.5)
         wall = AudioWall(rectPhys)
         wall.sounder.set_sound_as_file(soundname)
         self.sounders.append(wall)

@@ -1,7 +1,7 @@
 import numpy as np
 import pyaudio
 from wavio import read
-from spacing import Physical,PhysHead
+from spacing import Physical,PhysHead,RectPhysical
 import physicsing
 import ffting
 import math
@@ -141,8 +141,7 @@ class Sounder:
         if isinstance(listener,(Head)):
             distl = self.phys.dist(listener.physl)
             distr = self.phys.dist(listener.physr)
-            if random.randint(1,100) == 1:
-                print(distl,distr)
+
         elif isinstance(listener,(Ear)):
             distl = self.phys.dist(listener.phys)
             distr = self.phys.dist(listener.phys)
@@ -172,6 +171,7 @@ class Profiler:
     def __init__(self,phys):
         #phys is the physical object
         self.phys = phys
+        self.isrectangle = isinstance(self.phys,RectPhysical)
 
     def invsquare(self,soundsample,ophys):
         distance = self.phys.dist(ophys)+self.phys.w0+ophys.w0
@@ -186,12 +186,17 @@ class Profiler:
         newsample = ffting.attenuate_sample(soundsample,sf)
         return newsample
 
-    def forwardhrtf(self,soundsample,ophys):
-        howinfront = ophys.how_in_front(self.phys)
-        if howinfront > 0:
-            newsample = ffting.triangleboostfreq(soundsample,)
+    def hrtf(self,soundsample,ophys):
+        factor = ophys.how_obstructed_by_head(self.phys)
+        '''if random.randint(1,100) == 1 and isinstance(self.phys,Physical):
+            print(factor)'''
+        if factor < 0:
+            print("meep")
+            newsample = ffting.triangleboostfreq(soundsample,2000,5000,2,700,20*factor)
         else:
-            return soundsample
+            print("moop")
+            newsample = soundsample
+        return newsample
 
 
     def profile(self,sample,listener):
@@ -199,9 +204,11 @@ class Profiler:
             samplel = sample
             samplel = self.invsquare(samplel,listener.physl)
             samplel = self.attenuateoverdistance(samplel,listener.physl,'air')
+            samplel = self.hrtf(samplel,listener.physl)
             sampler = sample
             sampler = self.invsquare(sampler,listener.physr)
             sampler = self.attenuateoverdistance(sampler,listener.physr,'air')
+            sampler = self.hrtf(sampler,listener.physr)
         else:
             sample = self.invsquare(sample,listener.phys)
             sample = self.attenuateoverdistance(sample,listener.phys,'air')

@@ -9,13 +9,14 @@ import random
 
 #Creating a class that will allow basic spatial operations and comparisons to be made
 class Physical:
-    def __init__(self,x,y,w0=0.3,d=None):
+    def __init__(self,x,y,w0=0.3,d=None,side = None):
         self.x = x
         self.y = y
 
         self.w0 = w0
         #will always be positive
         self.direction = d#%2*math.pi
+        self.side = side
 
     #Function to find cartesian distance between 2 objects
     def dist(self,op):
@@ -43,7 +44,8 @@ class Physical:
         dy = self.y - y
 
     def rotate(self,amount):
-        self.direction = (self.direction + amount) % 2*math.pi
+        self.direction += amount
+        self.direction %= (2*math.pi)
 
     def moveabs(self,dx,dy):
         self.x += dx
@@ -71,6 +73,25 @@ class Physical:
     #returns on a scale of -1 to 1 how "in front" the other Physical is: will be useful when ears begin to implement HRTFs
     def how_in_front(self,op):
         return math.cos(self.get_relative_bearing(op))
+
+    def how_obstructed_by_head(self,op):
+        bearing = self.get_relative_bearing(op)
+        sideways = 0
+
+        '''if self.side == "l":
+            sideways = math.sin(bearing)
+        else:
+            sideways =  -math.sin(bearing)'''
+        sideways = abs(math.sin(bearing))
+        frontness = self.how_in_front(op)
+        factor = sideways
+        if frontness < 0:
+            factor *= frontness
+
+        '''if random.randint(1, 50) == 1:
+            print(f"frontness: {frontness}, sideways: {sideways}")'''
+
+        return factor
 
 
 class RectPhysical:
@@ -202,7 +223,7 @@ class PhysHead:
         ycoord = self.centre.y + leardistance*math.cos(learbearing+self.direction)
 
 
-        return Physical(xcoord,ycoord,0.02,self.direction)
+        return Physical(xcoord,ycoord,0.02,self.direction,'l')
 
     @property
     def rear(self):
@@ -211,7 +232,7 @@ class PhysHead:
         xcoord = self.centre.x + reardistance * math.sin(rearbearing + self.direction)
         ycoord = self.centre.y + reardistance * math.cos(rearbearing+self.direction)
 
-        return Physical(xcoord, ycoord, 0.02, rearbearing)
+        return Physical(xcoord, ycoord, 0.02, self.direction,'r')
 
 
 if __name__ == '__main__':

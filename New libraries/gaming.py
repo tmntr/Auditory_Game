@@ -8,7 +8,7 @@ from spacing import Physical,PhysHead
 REALWIDTH = 20
 REALHEIGHT = 15
 
-MULTIPLIER = 80
+MULTIPLIER = 40
 
 SCREENWIDTH = REALWIDTH*MULTIPLIER
 SCREENHEIGHT = REALHEIGHT*MULTIPLIER
@@ -41,18 +41,22 @@ class Player(GameObject):
     def control(self,keys,dtime):
         if keys[pygame.K_LEFT]:
 
-            self.phys.direction -= 2*math.pi*dtime*self.rspeed
+            self.phys.rotate(-2*math.pi*dtime*self.rspeed)
         if keys[pygame.K_RIGHT]:
-            self.phys.direction += 2*math.pi*dtime*self.rspeed
+            self.phys.rotate(2*math.pi*dtime*self.rspeed)
         if keys[pygame.K_UP]:
             self.phys.movepolar(self.speed*dtime,0)
         if keys[pygame.K_DOWN]:
             self.phys.movepolar(-1*self.speed*dtime,0)
 
+
+
         if keys[pygame.K_SPACE]:
             if not self.interactlastframe:
                 self.interact = True
                 self.interactlastframe = True
+                self.phys.rotate(math.pi)
+                print(self.phys.direction)
             else:
                 self.interact = False
         else:

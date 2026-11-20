@@ -61,7 +61,7 @@ class AudioManager:
 
 
 class Sounder:
-    def __init__(self,phys):
+    def __init__(self,phys,looping = True):
         self.sound = np.array([])
         self.lsound = np.array([])
         self.rsound = np.array([])
@@ -72,6 +72,8 @@ class Sounder:
         self.nextimportantframe = 0
         self.profiler = Profiler(phys)
         self.updatespeed = SR//20
+        self.looping = looping
+        self.done = False
 
 
     def set_sound_as_file(self,filename):
@@ -124,7 +126,12 @@ class Sounder:
                 if self.index >= len(self.sound):
                     self.playing = False
             self.index += 1
-        self.index %= len(self.sound)
+        if self.index > len(self.sound):
+            if self.looping:
+                self.index = 0
+            else:
+                self.done = True
+
 
     def start(self):
         self.playing = True
@@ -191,10 +198,10 @@ class Profiler:
         '''if random.randint(1,100) == 1 and isinstance(self.phys,Physical):
             print(factor)'''
         if factor < 0:
-            print("meep")
+
             newsample = ffting.triangleboostfreq(soundsample,2000,5000,2,700,20*factor)
         else:
-            print("moop")
+
             newsample = soundsample
         return newsample
 
@@ -204,11 +211,11 @@ class Profiler:
             samplel = sample
             samplel = self.invsquare(samplel,listener.physl)
             samplel = self.attenuateoverdistance(samplel,listener.physl,'air')
-            samplel = self.hrtf(samplel,listener.physl)
+            #samplel = self.hrtf(samplel,listener.physl)
             sampler = sample
             sampler = self.invsquare(sampler,listener.physr)
             sampler = self.attenuateoverdistance(sampler,listener.physr,'air')
-            sampler = self.hrtf(sampler,listener.physr)
+            #sampler = self.hrtf(sampler,listener.physr)
         else:
             sample = self.invsquare(sample,listener.phys)
             sample = self.attenuateoverdistance(sample,listener.phys,'air')

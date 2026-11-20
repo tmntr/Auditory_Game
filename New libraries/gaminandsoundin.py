@@ -38,12 +38,22 @@ class AudioWall:
         self.sounder = Sounder(self.rectPhys)
         self.gameObject = Wall(self.rectPhys)
 
+class Disembodied:
+    def __init__(self,x,y,soundfile,looping,w0 = 0.3):
+        self.phys = Physical(x,y,w0)
+        self.sounder = Sounder(self.phys,looping)
+        self.sounder.set_sound_as_file(soundfile)
+
+
+
+
 
 
 class Game:
     def __init__(self,user):
         self.user = user
         self.sounders = []
+        self.disembodiedsounds = []
         self.links = []
         self.running = True
 
@@ -54,6 +64,13 @@ class Game:
 
         self.user.player.control(keys,deltatime)
         self.user.player.update(self.sounders)
+
+        killlist = []
+        for item in self.disembodiedsounds:
+            if item.sounder.done:
+                killlist.append(item)
+        for item in killlist:
+            self.disembodiedsounds.remove(item)
 
 
 #        print(self.user.player.phys.y)
@@ -78,6 +95,11 @@ class Game:
         apy = -1 * y + REALHEIGHT / 2
         pygame.draw.circle(screen, 'blue', (apx * MULTIPLIER, apy * MULTIPLIER), 1)
 
+    def one_time_play(self,x,y,soundname):
+        self.disembodiedsounds.append(Disembodied(x, y, soundname,False))
+
+    def add_disembodied_voice(self,x,y,soundname):
+        self.disembodiedsounds.append(Disembodied(x, y, soundname,True))
 
     def draw(self,screen):
 
@@ -92,6 +114,8 @@ class Game:
 
     def sound(self):
         for thing in self.sounders:
+            thing.sounder.cycle(self.user.head)
+        for thing in self.disembodiedsounds:
             thing.sounder.cycle(self.user.head)
         self.user.head.listen()
 
@@ -117,7 +141,7 @@ theGame.add_wall(2,-2,4,9,'nestednicewaves.wav')
 theGame.add_switch(-1,1,True,'nestednicewaves.wav')
 
 theGame.link(0,1)
-
+theGame.one_time_play(0,0,"nestedpianoc.wav")
 
 def pygameCycle(game):
     time0 = 0

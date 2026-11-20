@@ -1,7 +1,7 @@
 import pygame
 import time
 
-numberofwobbles =4
+numberofwobbles = 4
 
 SCREENWIDTH = 1600*3/4
 SCREENHEIGHT = 900*3/4
@@ -33,7 +33,7 @@ class Wobble:
         if self.forward > 0:
             return (self.x**2+self.y**2+self.z**2)**0.5
         else:
-            return (self.x**2+self.y**2+(MAXDISTANCE-self.z**2))**0.5
+            return (self.x**2+self.y**2+(MAXDISTANCE-self.z)**2)**0.5
     def cycle(self,time=0):
         self.age += time
         self.x += self.right*time
@@ -54,8 +54,8 @@ class Wobble:
 
 
 
-forward = 0.125*1
-right = 1
+forward = 0.125*8
+right = -1
 
 wobbles = [Wobble(screen,forward,right)]
 
@@ -63,6 +63,9 @@ time0 = 0
 time1 = time.time()
 
 while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
     #thinking
     time0 = time.time()
     deltatime = time0 - time1
